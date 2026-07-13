@@ -10,11 +10,11 @@ namespace famenova.Domain.Entities
 {
     public class Order:BaseAuditableEntity<int>
     {
-        public ApplicationUser User { get; set; }
+        public ApplicationUser User { get; set; } = default!;
         public int UserId { get; set; } = default!;
         public DateTime OrderDate { get; set; }
-        public Address? ShippingAddress { get; set; }
-        public string? PhoneNumber { get; set; }
+        public Address ShippingAddress { get; set; } = default!;
+        public string PhoneNumber { get; set; } = default!;
         public OrderStatus OrderStatus { get; set; }
         public PaymentStatus  PaymentStatus { get; set; }
 

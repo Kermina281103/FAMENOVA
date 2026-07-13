@@ -28,7 +28,7 @@ namespace famenova.Infrastructure.Data.Configurations
 
             builder.HasOne(p => p.Category)
                 .WithMany(c => c.products)
-                .HasForeignKey(p => p.Category)
+                .HasForeignKey(p => p.CategoryId)
                 .OnDelete(DeleteBehavior.Restrict);
 
         }

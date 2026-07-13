@@ -1,6 +1,7 @@
 
 using Scalar.AspNetCore;
 using Microsoft.AspNetCore.OpenApi;
+using famenova.Infrastructure;
 namespace Famenova.API
 {
     public class Program
@@ -16,6 +17,7 @@ namespace Famenova.API
             builder.Services.AddEndpointsApiExplorer();
 
             builder.Services.AddOpenApi();
+            builder.Services.AddInfrastructureServices(builder.Configuration);
 
             var app = builder.Build();
 
