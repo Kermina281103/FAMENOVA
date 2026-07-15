@@ -10,6 +10,8 @@ using famenova.Infrastructure.Data.Context;
 using Microsoft.EntityFrameworkCore;
 using famenova.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
+using famenova.Domain.Interfaces;
+using famenova.Infrastructure.Persistence;
 
 namespace famenova.Infrastructure
 {
@@ -26,9 +28,10 @@ namespace famenova.Infrastructure
                 .AddRoles<IdentityRole<int>>()
                 .AddEntityFrameworkStores<AppDbContext>()
                 .AddDefaultTokenProviders();
-
-
-
+ 
+            services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+            services.AddScoped<IPrescriptionOrderRepository, PrescriptionOrderRepository>();
+            services.AddScoped<IMedicineRepository, MedicineRepository>();
             return services;
         }
     }
