@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Abstractions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -32,6 +33,7 @@ namespace famenova.Infrastructure.Data.Context
         public DbSet<MedicineBatch> Batches { get; set; }
         public DbSet<PrescriptionOrder> PrescriptionOrder { get; set; }
         public DbSet<PrescriptionOrderItem> PrescriptionOrderItem { get; set; }
+        public DbSet<LogEntry> LogEntries { get; set; }
 
         #endregion
 

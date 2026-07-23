@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace famenova.Infrastructure.Persistence
+namespace famenova.Infrastructure.Persistence.Repositories
 {
     public class GenericRepository<TEntity>(AppDbContext _context) : IGenericRepository<TEntity> where TEntity : class
     {

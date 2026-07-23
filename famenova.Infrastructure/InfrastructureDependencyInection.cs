@@ -11,7 +11,8 @@ using Microsoft.EntityFrameworkCore;
 using famenova.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 using famenova.Domain.Interfaces;
-using famenova.Infrastructure.Persistence;
+using famenova.Infrastructure.Persistence.Repositories;
+using famenova.Infrastructure.Persistence.UnitOfworks;
 
 namespace famenova.Infrastructure
 {
@@ -32,6 +33,7 @@ namespace famenova.Infrastructure
             services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
             services.AddScoped<IPrescriptionOrderRepository, PrescriptionOrderRepository>();
             services.AddScoped<IMedicineRepository, MedicineRepository>();
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
             return services;
         }
     }

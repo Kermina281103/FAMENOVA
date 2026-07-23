@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace famenova.Infrastructure.Persistence
+namespace famenova.Infrastructure.Persistence.Repositories
 {
     public class MedicineRepository(AppDbContext _context) : GenericRepository<Medicine>(_context), IMedicineRepository
     {
