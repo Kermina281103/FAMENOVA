@@ -24,23 +24,23 @@ namespace famenova.Infrastructure.Persistence.UnitOfworks
             MedicineRepository = medicineRepository;
             PrescriptionOrderRepository = prescriptionOrderRepository;
         }
-        private readonly Dictionary<string, object> Map = [];
+        private readonly Dictionary<Type, object> _repositories = [];
         public IGenericRepository<TEntity> GetGeneric<TEntity>() where TEntity : class
         {
-            var TypeOfName = typeof(TEntity).Name;
-            if (Map.ContainsKey(TypeOfName))
+            var TypeOfName = typeof(TEntity);
+            if (_repositories.ContainsKey(TypeOfName))
             {
-                return (IGenericRepository<TEntity>)Map[TypeOfName];
+                return (IGenericRepository<TEntity>)_repositories[TypeOfName];
             }
             else
             {
                 var NewObjetct = new GenericRepository<TEntity>(_context);
-                Map[TypeOfName] = NewObjetct;
+                _repositories[TypeOfName] = NewObjetct;
                 return NewObjetct;
             }
         }
 
-        public async Task<int> SaveChanges()
+        public async Task<int> SaveChangesAsync()
         => await _context.SaveChangesAsync();
     }
 }

@@ -13,7 +13,7 @@ namespace famenova.Domain.Interfaces
         IPrescriptionOrderRepository PrescriptionOrderRepository { get; }
         IGenericRepository<TEntity> GetGeneric<TEntity>() where TEntity : class;
 
-        Task<int> SaveChanges();
+        Task<int> SaveChangesAsync();
 
     }
 }
