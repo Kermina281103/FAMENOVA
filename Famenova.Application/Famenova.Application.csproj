@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\famenova.Domain\famenova.Domain.csproj" />
+    <ProjectReference Include="..\Famenova.Shared\Famenova.Shared.csproj" />
   </ItemGroup>
 
   <ItemGroup>

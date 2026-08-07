@@ -19,6 +19,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Famenova.Application\Famenova.Application.csproj" />
     <ProjectReference Include="..\famenova.Infrastructure\famenova.Infrastructure.csproj" />
+    <ProjectReference Include="..\Famenova.Shared\Famenova.Shared.csproj" />
   </ItemGroup>
 
   <ItemGroup>

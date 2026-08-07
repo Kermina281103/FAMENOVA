@@ -14,15 +14,14 @@ namespace Famenova.Application.Common.Models
         public int TotalCount { get;  }
         public int TotalPage { get; }
 
-        public PagedResult(IEnumerable<T> items,int pageNumber,int pageSize,int totalCount,int totalPage)
+        public PagedResult(IEnumerable<T> items,int pageNumber,int pageSize,int totalCount)
         {
             Items = items;
             PageNumber = pageNumber;
             PageSize = pageSize;
             TotalCount = totalCount;
             TotalPage = (int)Math.Ceiling((double)totalCount / pageSize);
-            if (PageSize == 0)
-                PageSize = 1;
+          
             
         }
 

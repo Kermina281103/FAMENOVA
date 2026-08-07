@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.13.35825.156 d17.13
+VisualStudioVersion = 17.13.35825.156
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Famenova.API", "Famenova.API\Famenova.API.csproj", "{F9B3948C-3FF6-4345-B3CC-472F3CDE10D1}"
 EndProject
@@ -10,6 +10,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "famenova.Domain", "famenova.Domain\famenova.Domain.csproj", "{347D57B1-89B6-4180-9620-7A92408E3051}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Famenova.Application", "Famenova.Application\Famenova.Application.csproj", "{FD9CFA93-660D-46B4-81C2-0C0407665DE2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Famenova.Shared", "Famenova.Shared\Famenova.Shared.csproj", "{B3FB52E7-01AA-4844-BE01-2AEED136C180}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{FD9CFA93-660D-46B4-81C2-0C0407665DE2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FD9CFA93-660D-46B4-81C2-0C0407665DE2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FD9CFA93-660D-46B4-81C2-0C0407665DE2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B3FB52E7-01AA-4844-BE01-2AEED136C180}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B3FB52E7-01AA-4844-BE01-2AEED136C180}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B3FB52E7-01AA-4844-BE01-2AEED136C180}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B3FB52E7-01AA-4844-BE01-2AEED136C180}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

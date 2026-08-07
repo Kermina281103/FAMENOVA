@@ -1,9 +1,11 @@
 ﻿using AutoMapper;
 using famenova.Domain.Entities;
 using famenova.Domain.Interfaces;
+using Famenova.Application.Common.Models;
 using Famenova.Application.Dtos.Category;
 using Famenova.Application.Exceptions;
 using Famenova.Application.Interfaces;
+using Famenova.Application.Specifications;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -41,13 +43,21 @@ namespace Famenova.Application.Services
             await _unitOfWork.SaveChangesAsync();
         }
 
-        public async Task<IEnumerable<CategoryResponseDto>> GetAllAsync()
+        public async Task<PagedResult<CategoryResponseDto>> GetAllAsync(string? search, string? sort, int pageIndex, int pageSize)
         {
             var CategoryRepo = _unitOfWork.GetGeneric<Category>();
+            var spec = new CategorySpecification(search, sort, pageIndex, pageSize);
 
-            var catRes = await CategoryRepo.GetAllAsync();
+            var pagedCategories = await CategoryRepo.GetPagedAsync(spec);
+            var items = _mapper.Map<IEnumerable<CategoryResponseDto>>(pagedCategories.Items);
 
-            return _mapper.Map<IEnumerable<CategoryResponseDto>>(catRes);
+            return new PagedResult<CategoryResponseDto>
+                (items, 
+                pagedCategories.PageNumber,
+                pagedCategories.PageSize, 
+                pagedCategories.TotalCount);
+
+            
         }
 
         public async Task<CategoryResponseDto> GetByIdAsync(int categoryId)

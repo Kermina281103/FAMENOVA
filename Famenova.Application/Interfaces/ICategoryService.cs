@@ -1,4 +1,5 @@
-﻿using Famenova.Application.Dtos.Category;
+﻿using Famenova.Application.Common.Models;
+using Famenova.Application.Dtos.Category;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,6 +17,6 @@ namespace Famenova.Application.Interfaces
         Task DeleteAsync(int id);
 
         Task<CategoryResponseDto> GetByIdAsync(int categoryId);
-        Task<IEnumerable<CategoryResponseDto>> GetAllAsync();
+        Task<PagedResult<CategoryResponseDto>> GetAllAsync(string? search, string? sort, int pageIndex, int pageSize);
     }
 }

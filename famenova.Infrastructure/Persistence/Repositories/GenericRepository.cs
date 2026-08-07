@@ -1,6 +1,8 @@
 ﻿using famenova.Domain.Interfaces;
 using famenova.Infrastructure.Data.Context;
+using famenova.Infrastructure.Persistence.Specifications;
 using Famenova.Application.Common.Models;
+using Famenova.Shared.Specifications;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -11,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace famenova.Infrastructure.Persistence.Repositories
 {
-    public class GenericRepository<TEntity>(AppDbContext _context) : IGenericRepository<TEntity> where TEntity : class
+    public class GenericRepository<TEntity>(AppDbContext _context) : IGenericRepository<TEntity> where TEntity:class
     {
         public async Task AddAsync(TEntity entity)
         {
@@ -33,9 +35,20 @@ namespace famenova.Infrastructure.Persistence.Repositories
             return await _context.Set<TEntity>().FindAsync(id);
         }
 
-        public Task<PagedResult<TEntity>> GetPagedAsync(PaginationParameters parameters)
+        public async Task<PagedResult<TEntity>> GetPagedAsync(ISpecification<TEntity> specification)
         {
-            throw new NotImplementedException();
+            var countQuery = SpecificationEvaluator.GetQuery(_context.Set<TEntity>(), specification, false);
+
+            var totalCount = await countQuery.CountAsync();
+            var itemsQuery = SpecificationEvaluator.GetQuery(_context.Set<TEntity>(), specification);
+            var items = await itemsQuery.ToListAsync();
+            return new PagedResult<TEntity>(items, specification.PageIndex, specification.PageSize, totalCount);
+        }
+
+        public async Task<IEnumerable<TEntity>> GetAllAsync(ISpecification<TEntity> specification)
+        {
+            var query = SpecificationEvaluator.GetQuery(_context.Set<TEntity>(), specification);
+            return await query.ToListAsync();
         }
 
         public  void  Remove(TEntity entity)

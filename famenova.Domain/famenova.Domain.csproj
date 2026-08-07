@@ -12,4 +12,8 @@
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.17" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Famenova.Shared\Famenova.Shared.csproj" />
+  </ItemGroup>
+
 </Project>

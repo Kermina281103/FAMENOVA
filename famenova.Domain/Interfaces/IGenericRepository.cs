@@ -1,4 +1,5 @@
 ﻿using Famenova.Application.Common.Models;
+using Famenova.Shared.Specifications;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,7 +17,7 @@ namespace famenova.Domain.Interfaces
         Task<bool> AnyAsync(Expression<Func<TEntity, bool>> predicate);
         Task<IEnumerable<TEntity>> GetAllAsync();
         Task<TEntity> GetByIdAsync(int id);
-
-        Task<PagedResult<TEntity>> GetPagedAsync(PaginationParameters parameters);
+        Task<IEnumerable<TEntity>> GetAllAsync(ISpecification<TEntity> specification);
+        Task<PagedResult<TEntity>> GetPagedAsync(ISpecification<TEntity> specification);
     }
 }
