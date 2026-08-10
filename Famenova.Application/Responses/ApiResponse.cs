@@ -31,7 +31,7 @@ public class ApiResponse<T> : ApiResponse
     {
         public T? Data { get; set; }
 
-        public static ApiResponse<T> Success(T data, string message="Request is completed Successfully") => new()
+        public static ApiResponse<T> Success(T? data, string message="Request is completed Successfully") => new()
         {
             IsSuccess=true,
             StatusCode=200,

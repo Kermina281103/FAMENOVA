@@ -52,10 +52,11 @@ namespace Famenova.Application.Services
             var items = _mapper.Map<IEnumerable<CategoryResponseDto>>(pagedCategories.Items);
 
             return new PagedResult<CategoryResponseDto>
-                (items, 
+                (items , 
                 pagedCategories.PageNumber,
-                pagedCategories.PageSize, 
-                pagedCategories.TotalCount);
+                pagedCategories.PageSize , 
+                pagedCategories.TotalCount
+                );
 
             
         }
