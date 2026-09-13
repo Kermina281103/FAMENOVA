@@ -60,5 +60,28 @@ namespace famenova.Infrastructure.Persistence.Repositories
         {
             _context.Set<TEntity>().Update(entity);
         }
+
+        public  async Task<int> CountAsync()
+        {
+            return await   _context.Set<TEntity>().CountAsync();
+        }
+
+        public async Task<IEnumerable<TEntity>> GetAllAsync(Expression<Func<TEntity, bool>> predicate)
+        {
+            return await _context.Set<TEntity>()
+                .Where(predicate)
+                .ToListAsync();
+        }
+
+        public async Task<TEntity?> GetByIdAsync(ISpecification<TEntity> spec)
+        {
+            return await ApplySpecification(spec).FirstOrDefaultAsync();
+        }
+        private IQueryable<TEntity> ApplySpecification(ISpecification<TEntity> spec)
+        {
+            return SpecificationEvaluator.GetQuery(
+                _context.Set<TEntity>(),
+                spec);
+        }
     }
 }

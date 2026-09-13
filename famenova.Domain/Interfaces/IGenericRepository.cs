@@ -14,9 +14,12 @@ namespace famenova.Domain.Interfaces
         Task AddAsync(TEntity entity);
         void Remove(TEntity entity);
         void Update(TEntity entity);
+        Task<IEnumerable<TEntity>> GetAllAsync(Expression<Func<TEntity, bool>> predicate);
+        Task<int> CountAsync();
         Task<bool> AnyAsync(Expression<Func<TEntity, bool>> predicate);
         Task<IEnumerable<TEntity>> GetAllAsync();
         Task<TEntity> GetByIdAsync(int id);
+        Task<TEntity> GetByIdAsync( ISpecification<TEntity> spec);
         Task<IEnumerable<TEntity>> GetAllAsync(ISpecification<TEntity> specification);
         Task<PagedResult<TEntity>> GetPagedAsync(ISpecification<TEntity> specification);
     }

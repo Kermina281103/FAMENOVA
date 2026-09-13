@@ -6,6 +6,7 @@ using Famenova.Application.Dtos.Category;
 using Famenova.Application.Exceptions;
 using Famenova.Application.Interfaces;
 using Famenova.Application.Specifications;
+using Microsoft.EntityFrameworkCore.Storage;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,7 +26,33 @@ namespace Famenova.Application.Services
                 throw new ConflictException("Category With this Name Is Already Exist");
             }
             var category = _mapper.Map<Category>(dto);
-            await CategoryRepo.AddAsync(category);
+            var count = await CategoryRepo.CountAsync();
+
+            if(dto.DisplayOrder.HasValue &&
+                (dto.DisplayOrder.Value<1|| dto.DisplayOrder.Value > count + 1))
+            {
+                throw new ValidationException([ "Invalid DisplayOrder" ]);
+            }
+            if (dto.DisplayOrder.HasValue)
+            {
+                var getCat = await CategoryRepo.GetAllAsync(c => c.DisplayOrder >= dto.DisplayOrder!.Value);
+
+                foreach(var item in getCat)
+                {
+                    item.DisplayOrder++;
+                }
+            }
+
+            if (!dto.DisplayOrder.HasValue)
+            {
+                category.DisplayOrder = count + 1;
+            }
+            else
+            {
+                category.DisplayOrder = dto.DisplayOrder.Value;
+            }
+
+                await CategoryRepo.AddAsync(category);
             await _unitOfWork.SaveChangesAsync();
 
             return _mapper.Map<CategoryResponseDto>(category);
@@ -38,6 +65,11 @@ namespace Famenova.Application.Services
             var category = await CategoryRepo.GetByIdAsync(id);
             if (category is null)
                 throw new NotFoundException("Category Is Not Found ");
+            var getCat = await CategoryRepo.GetAllAsync(c => c.DisplayOrder > category.DisplayOrder);
+            foreach(var item in getCat)
+            {
+                item.DisplayOrder--;
+            }
 
             CategoryRepo.Remove(category);
             await _unitOfWork.SaveChangesAsync();
@@ -78,13 +110,55 @@ namespace Famenova.Application.Services
             var findCat = await CategoryRepo.GetByIdAsync(categoryId);
             if (findCat is null)
                 throw new NotFoundException($"Category With Id {categoryId} is not found ");
-
+           
             var exists = await CategoryRepo.AnyAsync(c => c.Name.ToLower() == dto.Name.ToLower() && categoryId != c.Id);
             if (exists)
                 throw new ConflictException("There is Conflict on Naming");
 
+            var count = await CategoryRepo.CountAsync();
 
-            _mapper.Map(dto, findCat);
+            if (dto.DisplayOrder!=0)
+            {
+                var newOrder = dto.DisplayOrder;
+                var oldOrder = findCat.DisplayOrder;
+
+                if (newOrder < 1 || newOrder > count)
+                {
+                    throw new ValidationException(["Invalid DisplayOrder"]);
+                   
+                }
+                if (newOrder != oldOrder)
+                {
+                    if (newOrder > oldOrder)
+                    {
+                        var categoriesToShift = await CategoryRepo.GetAllAsync(c => c.DisplayOrder > oldOrder && c.DisplayOrder <= newOrder);
+
+                        foreach(var item in categoriesToShift)
+                        {
+                            item.DisplayOrder--;
+                        }
+                    }
+                    else
+                    {
+                        var categoriesToShift = await CategoryRepo.GetAllAsync(
+                            c => c.DisplayOrder >= newOrder &&
+                            c.DisplayOrder < oldOrder);
+                        foreach(var item in categoriesToShift)
+                        {
+                            item.DisplayOrder++;
+                        }
+                    }
+                    findCat.DisplayOrder = newOrder;
+                }
+            }
+            if (!string.IsNullOrEmpty(dto.Name ))
+                findCat.Name = dto.Name;
+            if (!string.IsNullOrEmpty(dto.Description))
+                findCat.Description = dto.Description;
+            if (!string.IsNullOrEmpty(dto.ImageUrl))
+                findCat.ImageUrl = dto.ImageUrl;
+           
+
 
             await _unitOfWork.SaveChangesAsync();
 

@@ -24,7 +24,7 @@ namespace famenova.Infrastructure
             var connectionString = configuration.GetConnectionString("DefaultConnection");
             services.AddDbContext<AppDbContext>(options =>
              options.UseSqlServer(connectionString));
-
+            services.AddDataProtection();
             services.AddIdentityCore<ApplicationUser>()
                 .AddRoles<IdentityRole<int>>()
                 .AddEntityFrameworkStores<AppDbContext>()

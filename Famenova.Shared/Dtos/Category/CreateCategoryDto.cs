@@ -12,6 +12,6 @@ namespace Famenova.Application.Dtos.Category
 
         public string? ImageUrl { get; set; }
         public string? Description { get; set; }
-        public int DisplayOrder { get; set; }
+        public int? DisplayOrder { get; set; }
     }
 }
