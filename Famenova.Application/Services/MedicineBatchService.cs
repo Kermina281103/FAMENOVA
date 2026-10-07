@@ -25,10 +25,16 @@ namespace Famenova.Application.Services
             if (exists == true)
                 throw new ConflictException($"There is medicine With Id {dto.MedicineId} contain this  BatchNumber {dto.BatchNumber}");
 
-           
+            var medicine = await _unitOfWork.GetGeneric<Medicine>().GetByIdAsync(dto.MedicineId);
+            if (medicine is null)
+                throw new NotFoundException($"Medicine With Id {dto.MedicineId} is not found ");
+
             var result = _mapper.Map<MedicineBatch>(dto);
 
-            await _unitOfWork.GetGeneric<MedicineBatch>().AddAsync(result);
+             medicine.IncreaseStock(dto.Quantity);
+
+             await _unitOfWork.GetGeneric<MedicineBatch>().AddAsync(result);
+            result.Medicine.Stock += result.Quantity;
             await _unitOfWork.SaveChangesAsync();
 
             var medicineBatchResponse = _mapper.Map<MedicineBatchResponseDto>(result);
@@ -37,9 +43,12 @@ namespace Famenova.Application.Services
 
         public async Task DeleteAsync(int id)
         {
-            var medBatch =  await _unitOfWork.GetGeneric<MedicineBatch>().GetByIdAsync(id);
+            var spec = new MedicineBatchSpecification(id);
+            var medBatch =  await _unitOfWork.GetGeneric<MedicineBatch>().GetByIdAsync(spec);
+
             if (medBatch is null)
                 throw new NotFoundException($"Medicine Batch With Id {id} is not found");
+            medBatch.Medicine.DecreaseStock(medBatch.Quantity);
              _unitOfWork.GetGeneric<MedicineBatch>().Remove(medBatch);
             await _unitOfWork.SaveChangesAsync();
             
@@ -91,7 +100,18 @@ namespace Famenova.Application.Services
             if (dto.ExpiryDate.HasValue)
                 medBatch.ExpiryDate = dto.ExpiryDate.Value;
             if (dto.Quantity.HasValue)
-                medBatch.Quantity = dto.Quantity.Value;
+            {
+                var oldQuantity = medBatch.Quantity;
+                var newQuantity = dto.Quantity.Value;
+
+                var difference = newQuantity - oldQuantity;
+
+                medBatch.Quantity = newQuantity;
+
+                medBatch.Medicine.AdjustStock(difference);
+
+
+            }
 
            
             await _unitOfWork.SaveChangesAsync();

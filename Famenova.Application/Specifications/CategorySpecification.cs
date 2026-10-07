@@ -36,7 +36,7 @@ namespace Famenova.Application.Specifications
 
 
             }
-            ApplyPaging(pageIndex,pageSize);
+            ApplyPaging(pageIndex, pageSize);
         }
     }
 }

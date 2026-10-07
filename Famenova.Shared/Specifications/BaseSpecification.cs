@@ -12,10 +12,10 @@ namespace Famenova.Shared.Specifications
     {
         public Expression<Func<TEntity, bool>> Criteria { get; protected set; }
 
-        public IList<Expression<Func<TEntity, object>>> Includes { get; } = new List<Expression<Func<TEntity, object>>>();
-
+        public IList<Func<IQueryable<TEntity>, IQueryable<TEntity>>> Includes { get; }
+            = new List<Func<IQueryable<TEntity>, IQueryable<TEntity>>>();
         public Expression<Func<TEntity, object>>? OrderBy { get; protected set; }
-
+       
         public Expression<Func<TEntity, object>>? OrderByDescending { get; protected set; }
         public int PageIndex { get; protected set; }
         public int  PageSize { get; protected set ; }
@@ -27,11 +27,11 @@ namespace Famenova.Shared.Specifications
         public bool IsPagingEnabled { get; protected set; }
 
 
-        protected void AddInclude(Expression<Func<TEntity,object>> include)
+        protected void AddInclude(
+                  Func<IQueryable<TEntity>, IQueryable<TEntity>> include)
         {
             Includes.Add(include);
         }
-
         protected void AddOrderBy(Expression<Func<TEntity,object>> orderBy)
         {
             OrderBy = orderBy;

@@ -1,10 +1,6 @@
 ﻿using famenova.Domain.Entities;
 using Famenova.Shared.Specifications;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace Famenova.Application.Specifications
 {
@@ -16,8 +12,8 @@ namespace Famenova.Application.Specifications
             || (c.ActiveIngredient != null && c.ActiveIngredient.Contains(search)))
             && (!categoryId.HasValue || categoryId.Value == c.CategoryId)
             &&(!requiresPrescription.HasValue|| requiresPrescription.Value==c.RequiresPrescription);
-            
-            AddInclude(c => c.Category);
+
+            AddInclude(query => query.Include(x => x.Category));
 
             if (String.IsNullOrWhiteSpace(sort))
             {
@@ -49,15 +45,14 @@ namespace Famenova.Application.Specifications
 
             }
             ApplyPaging(pageIndex, pageSize);
-
         }
 
         public MedicineSpecification(int id)
         {
             Criteria = c => c.Id == id;
-           
-            AddInclude(m => m.Category);
-            
+
+            AddInclude(query => query.Include(x => x.Category));
+
         }
     }
 }

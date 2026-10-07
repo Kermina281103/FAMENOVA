@@ -8,9 +8,12 @@ namespace famenova.Domain.Enums
 {
     public enum PrescriptionStatus
     {
-        Pending=0,
-        Rejected=1,
-        Accepted=2
+        PendingReview = 0,
+        NeedsClarification = 1,
+        RejectedByPharmacy = 2,
+        AwaitingCustomerApproval = 3,
+        RejectedByCustomer = 4,
+        ApprovedByCustomer = 5
 
     }
 }

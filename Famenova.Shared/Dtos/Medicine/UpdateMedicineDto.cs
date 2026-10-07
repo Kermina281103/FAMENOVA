@@ -12,7 +12,7 @@ namespace Famenova.Shared.Dtos.Medicine
         public string? DosageForm { get; set; }
         public string? Concentration { get; set; }
         public bool? RequiresPrescription { get; set; }
-        public int? Stock { get; set; }
+
 
         public string? Name { get; set; }
         public decimal? Price { get; set; }

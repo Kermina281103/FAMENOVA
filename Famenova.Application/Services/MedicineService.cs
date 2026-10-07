@@ -93,8 +93,6 @@ namespace Famenova.Application.Services
                 medicine.DosageForm = dto.DosageForm;
             if (!string.IsNullOrEmpty(dto.ImageUrl))
                 medicine.ImageUrl = dto.ImageUrl;
-            if (dto.Stock.HasValue)
-                medicine.Stock = dto.Stock.Value;
             if (dto.CategoryId.HasValue)
             {
                 var cat = await _unitOfWork.GetGeneric<Category>().GetByIdAsync(dto.CategoryId.Value);

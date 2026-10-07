@@ -1,5 +1,6 @@
 ﻿using famenova.Domain.Entities;
 using Famenova.Shared.Specifications;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,7 +16,7 @@ namespace Famenova.Application.Specifications
             Criteria = c => (string.IsNullOrEmpty(search) || c.BatchNumber.Contains(search))
             && (!medicineId.HasValue || c.MedicineId == medicineId.Value);
 
-            AddInclude(c => c.Medicine);
+            AddInclude(query => query.Include(x => x.Medicine));
 
             if (String.IsNullOrEmpty(sort))
             {
@@ -51,7 +52,7 @@ namespace Famenova.Application.Specifications
         public MedicineBatchSpecification(int id)
         {
             Criteria = c => c.Id == id;
-            AddInclude(c => c.Medicine);
+            AddInclude(query => query.Include(x => x.Medicine));
         }
     }
 }

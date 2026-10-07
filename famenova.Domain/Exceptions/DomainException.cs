@@ -4,11 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Famenova.Application.Exceptions
+namespace famenova.Domain.Exceptions
 {
-    public class NotFoundException:BaseException
+   public class DomainException:Exception
     {
-        public NotFoundException(string message):base(message,404)
+        public DomainException(string message):base(message)
         {
             
         }

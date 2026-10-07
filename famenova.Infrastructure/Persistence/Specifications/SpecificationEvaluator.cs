@@ -18,12 +18,12 @@ namespace famenova.Infrastructure.Persistence.Specifications
                 query = query.Where(specification.Criteria);
             }
 
-            foreach(var include in specification.Includes)
+            foreach (var include in specification.Includes)
             {
-                query = query.Include(include);
+                query = include(query);
             }
 
-            if(specification.OrderBy is not null)
+            if (specification.OrderBy is not null)
             {
                 query = query.OrderBy(specification.OrderBy);
             }

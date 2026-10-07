@@ -1,4 +1,5 @@
-﻿using famenova.Infrastructure.Data.Context;
+﻿using famenova.Domain.Exceptions;
+using famenova.Infrastructure.Data.Context;
 using Famenova.Application.Exceptions;
 using Famenova.Application.Responses;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -32,7 +33,9 @@ namespace Famenova.API.Middleware
             }
             catch(Exception ex)
             {
-                await HandleExceptionAsync(context,ex);
+                await HandleExceptionAsync(context, ex);
+
+
 
             }
         }
@@ -55,6 +58,8 @@ namespace Famenova.API.Middleware
 
                 ConflictException e =>
                 ApiResponse.Failure(e.Message, (int)HttpStatusCode.Conflict),
+                DomainException e=>
+                ApiResponse.Failure(e.Message,(int)HttpStatusCode.BadRequest),
 
                 AppValidationException e =>
                 ApiValidationResponse.ValidationFail(e.Errors),

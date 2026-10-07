@@ -10,7 +10,7 @@ namespace Famenova.Shared.Specifications
     public interface ISpecification<TEntity> where TEntity : class
     {
         Expression<Func<TEntity, bool>> Criteria { get; }
-        IList<Expression<Func<TEntity, object>>> Includes {get;}
+        IList<Func<IQueryable<TEntity>, IQueryable<TEntity>>> Includes { get; }
         Expression<Func<TEntity, object>>? OrderBy { get; }
         Expression<Func<TEntity, object>>? OrderByDescending { get; }
         int PageIndex { get; }
