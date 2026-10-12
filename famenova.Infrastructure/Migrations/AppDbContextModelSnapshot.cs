@@ -277,6 +277,9 @@ namespace famenova.Infrastructure.Migrations
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
 
+                    b.Property<string>("cartId")
+                        .HasColumnType("nvarchar(450)");
+
                     b.HasKey("Id");
 
                     b.HasIndex("NormalizedEmail")
@@ -286,6 +289,8 @@ namespace famenova.Infrastructure.Migrations
                         .IsUnique()
                         .HasDatabaseName("UserNameIndex")
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
+
+                    b.HasIndex("cartId");
 
                     b.ToTable("AspNetUsers", (string)null);
 
@@ -314,31 +319,10 @@ namespace famenova.Infrastructure.Migrations
 
             modelBuilder.Entity("famenova.Domain.Entities.Cart", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreatedOn")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("LastModifiedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("LastModifiedOn")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("UserId")
-                        .IsUnique();
 
                     b.ToTable("Cart");
                 });
@@ -351,32 +335,28 @@ namespace famenova.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("CartId")
-                        .HasColumnType("int");
+                    b.Property<string>("CartId")
+                        .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("CreatedBy")
+                    b.Property<string>("CategoryName")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("CreatedOn")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("LastModifiedBy")
+                    b.Property<string>("PictureUrl")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("LastModifiedOn")
-                        .HasColumnType("datetime2");
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(18,2)");
 
-                    b.Property<int>("NumberOfItem")
-                        .HasColumnType("int");
+                    b.Property<string>("ProductName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("ProductId")
+                    b.Property<int>("Quantity")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
                     b.HasIndex("CartId");
-
-                    b.HasIndex("ProductId");
 
                     b.ToTable("CartItem");
                 });
@@ -773,34 +753,20 @@ namespace famenova.Infrastructure.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("famenova.Domain.Entities.Cart", b =>
+            modelBuilder.Entity("famenova.Domain.Entities.ApplicationUser", b =>
                 {
-                    b.HasOne("famenova.Domain.Entities.ApplicationUser", "User")
-                        .WithOne("cart")
-                        .HasForeignKey("famenova.Domain.Entities.Cart", "UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.HasOne("famenova.Domain.Entities.Cart", "cart")
+                        .WithMany()
+                        .HasForeignKey("cartId");
 
-                    b.Navigation("User");
+                    b.Navigation("cart");
                 });
 
             modelBuilder.Entity("famenova.Domain.Entities.CartItem", b =>
                 {
-                    b.HasOne("famenova.Domain.Entities.Cart", "Cart")
+                    b.HasOne("famenova.Domain.Entities.Cart", null)
                         .WithMany("CartItems")
-                        .HasForeignKey("CartId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("famenova.Domain.Entities.Product", "Product")
-                        .WithMany()
-                        .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Cart");
-
-                    b.Navigation("Product");
+                        .HasForeignKey("CartId");
                 });
 
             modelBuilder.Entity("famenova.Domain.Entities.MedicineBatch", b =>
@@ -952,8 +918,6 @@ namespace famenova.Infrastructure.Migrations
             modelBuilder.Entity("famenova.Domain.Entities.ApplicationUser", b =>
                 {
                     b.Navigation("Orders");
-
-                    b.Navigation("cart");
                 });
 
             modelBuilder.Entity("famenova.Domain.Entities.Cart", b =>

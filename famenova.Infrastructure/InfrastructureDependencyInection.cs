@@ -13,6 +13,8 @@ using Microsoft.AspNetCore.Identity;
 using famenova.Domain.Interfaces;
 using famenova.Infrastructure.Persistence.Repositories;
 using famenova.Infrastructure.Persistence.UnitOfworks;
+using StackExchange.Redis;
+using famenova.Infrastructure.Carts;
 
 namespace famenova.Infrastructure
 {
@@ -29,10 +31,17 @@ namespace famenova.Infrastructure
                 .AddRoles<IdentityRole<int>>()
                 .AddEntityFrameworkStores<AppDbContext>()
                 .AddDefaultTokenProviders();
+            services.AddSingleton(typeof(IConnectionMultiplexer), (serviceProvider) =>
+            {
+                var connection = configuration.GetConnectionString("Redis");
+                var connectionMultiplexerobj = ConnectionMultiplexer.Connect(connection!);
+                return connectionMultiplexerobj;
+            });
  
             services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
             services.AddScoped<IPrescriptionOrderRepository, PrescriptionOrderRepository>();
             services.AddScoped<IMedicineRepository, MedicineRepository>();
+            services.AddScoped<ICartRepository, CartRepository>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             return services;
         }

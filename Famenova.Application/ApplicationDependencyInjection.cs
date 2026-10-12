@@ -21,6 +21,7 @@ namespace Famenova.Application
             service.AddScoped<IMedicineService, MedicineService>();
             service.AddScoped<IMedicineBatchService, MedicineBatchService>();
             service.AddScoped<IPrescriptionOrderService, PrescriptionOrderService>();
+            service.AddScoped<ICartService, CartService>();
             return service;
         }
     }

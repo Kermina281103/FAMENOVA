@@ -8,11 +8,10 @@ using System.Threading.Tasks;
 
 namespace famenova.Domain.Entities
 {
-    public class Cart:BaseAuditableEntity<int>
+    public class Cart
     {
-        public int UserId { get; set; } = default!;
-        public ApplicationUser User { get; set; }
 
-        public ICollection<CartItem> CartItems { get; set; } = new HashSet<CartItem>();
+        public string Id { get; set; } = default!;
+        public IEnumerable<CartItem> CartItems { get; set; } = new List<CartItem>();
     }
 }

@@ -1,4 +1,5 @@
 ﻿using famenova.Domain.Entities;
+using Famenova.Application.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -25,8 +26,8 @@ namespace famenova.Infrastructure.Data.Context
         public DbSet<ApplicationUser> User { get; set; }
         public DbSet<Category> Category { get; set; }
         public DbSet<Product> Product { get; set; }
-        public DbSet<CartItem> CartItem { get; set; }
-        public DbSet<Cart> Cart { get; set; }
+
+       
         public DbSet<OrderItem> OrderItem { get; set; }
         public DbSet<Order> Order { get; set; }
         public DbSet<Medicine> Medicine { get; set; }
