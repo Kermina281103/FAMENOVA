@@ -12,13 +12,13 @@ namespace Famenova.Application.Specifications
             string? search, int? customerId, PrescriptionStatus? status,
             bool? hasClarificationResponse)
         {
-            var term = search?.Trim();
+            var trim = search?.Trim();
 
             return x =>
                 (!customerId.HasValue || x.CustomerId == customerId.Value) &&
                 (!status.HasValue || x.Status == status.Value) &&
-                ((string.IsNullOrEmpty(term) ||
-              x.PhoneNumber.Contains(term) || (x.Customer.UserName != null && x.Customer.UserName.Contains(term)) 
+                ((string.IsNullOrEmpty(trim) ||
+              x.PhoneNumber.Contains(trim) || (x.Customer.UserName != null && x.Customer.UserName.Contains(trim)) 
             ))
                 && (!hasClarificationResponse.HasValue || (hasClarificationResponse.Value? x.ClarificationRespondedAt != null
                                                          : x.ClarificationRespondedAt == null) ) ;
@@ -55,7 +55,7 @@ namespace Famenova.Application.Specifications
             ApplyPaging(specParams.pageIndex,specParams.pageSize);
         }
 
-        // ================= Admin: Details / Commands =================
+        // ================= Admin: Details =================
         public PrescriptionOrderSpecification(int id)
         {
             Criteria = x => x.Id == id;

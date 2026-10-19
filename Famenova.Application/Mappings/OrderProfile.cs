@@ -13,15 +13,30 @@ namespace Famenova.Application.Mappings
     {
         public OrderProfile()
         {
-            CreateMap<Order, OrderResponseDto>()
+            CreateMap<Order, OrderListItemDto>()
+            .ForMember(d => d.PaymentMethod, sr => sr.MapFrom(x => x.PaymentMethod.ToString()))
+            .ForMember(d => d.PaymentStatus, sr => sr.MapFrom(x => x.PaymentStatus.ToString()))
+            .ForMember(d => d.OrderStatus, sr => sr.MapFrom(x => x.OrderStatus.ToString()))
+            .ForMember(d => d.Source, sr => sr.MapFrom(x => x.Source.ToString()))
+            .ForMember(d => d.CustomerName, sr => sr.MapFrom(x => x.User.UserName));
+
+            CreateMap<Order, OrderDetailsDto>()
                 .ForMember(d => d.Items, sr => sr.MapFrom(x => x.OrderItems))
                 .ForMember(d => d.OrderStatus, sr => sr.MapFrom(x => x.OrderStatus.ToString()))
                 .ForMember(d => d.PaymentStatus, sr => sr.MapFrom(x => x.PaymentStatus))
-                .ForMember(d => d.Total, sr => sr.MapFrom(x => x.OrderItems.Sum(i => i.Quantity * i.UnitPrice)));
+                .ForMember(d => d.OrderStatus, sr => sr.MapFrom(x => x.OrderStatus.ToString()))
+                .ForMember(d => d.Source, sr => sr.MapFrom(x => x.Source.ToString()));
+               
+                
+            // .ForMember(d => d.Total, sr => sr.MapFrom(x => x.OrderItems.Sum(i => i.Quantity * i.UnitPrice)));
 
-            CreateMap<OrderItem, OrderItemResponseDto>()
-                .ForMember(de => de.ProductName, sr => sr.MapFrom(x => x.Product!.Name))
-                .ForMember(de => de.SubTotal, sr => sr.MapFrom(x => (x.UnitPrice * x.Quantity)));
+            CreateMap<OrderItem, OrderItemDto>()
+                .ForMember(de => de.ProductName, sr => sr.MapFrom(x => x.Product!.Name));
+              //  .ForMember(de => de.SubTotal, sr => sr.MapFrom(x => (x.UnitPrice * x.Quantity)));
+
+        
+
+
         }
     }
 }

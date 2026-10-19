@@ -4,9 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Famenova.Application.Services
+namespace famenova.Domain.Enums
 {
-    interface IOrderService
+    public enum PaymentMethod
     {
+        CashOnDelivery=1,
+        Card=2
     }
 }

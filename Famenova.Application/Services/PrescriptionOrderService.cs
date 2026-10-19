@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using famenova.Domain.Entities;
+using famenova.Domain.Enums;
 using famenova.Domain.Interfaces;
 using Famenova.Application.Common.Models;
 using Famenova.Application.Exceptions;
@@ -49,16 +50,14 @@ namespace Famenova.Application.Services
 
 
         }
-        public async Task<OrderResponseDto> ApproveByCustomerAsync(int id, int customerId) { 
+        public async Task<OrderDetailsDto> ApproveByCustomerAsync(int id, int customerId) { 
             var spec = new MyPrescriptionDetailsSpecification(id, customerId);
             var PrescriptionOrder = await _unitOfWork.GetGeneric<PrescriptionOrder>().GetByIdAsync(spec);
             if (PrescriptionOrder is null)
                 throw new NotFoundException($"there isn't prescriptionOrder with Id {id}");
             PrescriptionOrder.ApproveByCustomer();
 
-            var order = Order.CreatePending(PrescriptionOrder.CustomerId,
-                PrescriptionOrder.DeliveryAddress,
-                PrescriptionOrder.PhoneNumber);
+            var order = Order.CreatePending(PrescriptionOrder.CustomerId,OrderSource.Prescription,PrescriptionOrder.DeliveryAddress,PrescriptionOrder.PhoneNumber);
 
             foreach (var item in PrescriptionOrder.Items)
                 order.AddItem(item.ProductId, item.Quantity, item.Price);
@@ -66,7 +65,7 @@ namespace Famenova.Application.Services
             PrescriptionOrder.Order = order;
             await _unitOfWork.GetGeneric<Order>().AddAsync(order);
             await _unitOfWork.SaveChangesAsync();
-            return _mapper.Map<OrderResponseDto>(order);
+            return _mapper.Map<OrderDetailsDto>(order);
         } 
 
 

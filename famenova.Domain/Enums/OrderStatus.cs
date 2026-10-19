@@ -8,7 +8,7 @@ namespace famenova.Domain.Enums
 {
     public enum OrderStatus
     {
-        pending=0,
+        Pending=0,
         Processing=1,
         Shipped=2 ,//ف الطريق 
         Delivered=3,
@@ -16,5 +16,10 @@ namespace famenova.Domain.Enums
         Returned=5
        
     }
-    
+    public enum OrderType
+    {
+        Prescription = 1,
+        Cart = 2
+    }
+
 }

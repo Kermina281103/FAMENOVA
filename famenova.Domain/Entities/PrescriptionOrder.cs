@@ -158,6 +158,7 @@ namespace famenova.Domain.Entities
             if (!Items.Any())
                 throw new DomainException("Cannot approove a prescription without items");
             Status = PrescriptionStatus.ApprovedByCustomer;
+            
         }
 
     }

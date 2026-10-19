@@ -18,7 +18,7 @@ namespace Famenova.Application.Interfaces
         Task<PrescriptionOrderResponseDto> CreateAsync(CreatePrescriptionOrderDto dto, int customerId);
 
         Task<PrescriptionOrderResponseDto> RejectByCustomerAsync(int id, int customerId);
-        Task<OrderResponseDto> ApproveByCustomerAsync(int id, int customerId);
+        Task<OrderDetailsDto> ApproveByCustomerAsync(int id, int customerId);
         Task<PagedResult<PrescriptionOrderListItemDto>> GetMyPrescriptionOrderAsync(PrescriptionOrderSpecParams dto, int customerId);
         Task<PrescriptionOrderDetailsDto> GetMyPrescriptionOrderAsync(int id, int customerId);
 

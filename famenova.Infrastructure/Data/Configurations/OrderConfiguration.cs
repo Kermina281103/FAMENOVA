@@ -35,10 +35,19 @@ namespace famenova.Infrastructure.Data.Configurations
 
             builder.Property(o => o.OrderStatus)
                 .HasConversion<string>();
+            builder.Property(x => x.Subtotal).HasPrecision(18, 2);
+            builder.Property(x => x.Total).HasPrecision(18, 2);
+            builder.Property(x => x.DeliveryFee).HasPrecision(18, 2);
+            builder.Ignore(x => x.IsStockCommitted);
+            builder.Ignore(x => x.CanBePaid);
 
-            builder.Property(o => o.OrderStatus)
-                .HasConversion<string>();
+            builder.HasMany(o => o.OrderItems)
+                .WithOne(i => i.Order)
+                .HasForeignKey(i => i.OrderId)
+                .OnDelete(DeleteBehavior.Cascade);
 
+
+                
 
 
         }

@@ -42,10 +42,10 @@ namespace Famenova.API.Controllers
         }
 
         [HttpPost("approveCustomer")]
-        public async Task<ActionResult<OrderResponseDto>> ApprovedByCustomerAsyn(int id , int customerId)
+        public async Task<ActionResult<OrderDetailsDto>> ApprovedByCustomerAsyn(int id , int customerId)
         {
             var result = await _prescriptionOrderService.ApproveByCustomerAsync(id, customerId);
-            return Ok(ApiResponse<OrderResponseDto>.Success(result, "Request approved by customer"));
+            return Ok(ApiResponse<OrderDetailsDto>.Success(result, "Request approved by customer"));
         }
 
         [HttpPost("rejectCustomer")]
