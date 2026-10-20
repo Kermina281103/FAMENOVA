@@ -34,7 +34,7 @@ namespace Famenova.Application.Services
              medicine.IncreaseStock(dto.Quantity);
 
              await _unitOfWork.GetGeneric<MedicineBatch>().AddAsync(result);
-            result.Medicine.Stock += result.Quantity;
+          //  result.Medicine.Stock += result.Quantity;
             await _unitOfWork.SaveChangesAsync();
 
             var medicineBatchResponse = _mapper.Map<MedicineBatchResponseDto>(result);
