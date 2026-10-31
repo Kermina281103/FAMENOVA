@@ -18,7 +18,18 @@ namespace Famenova.API
            
             builder.Services.AddEndpointsApiExplorer();
 
-            builder.Services.AddOpenApi();
+            builder.Services.AddOpenApi(options =>
+            {
+                options.AddDocumentTransformer((document, context, cancellationToken) =>
+                {
+                    document.Servers = new List<Microsoft.OpenApi.Models.OpenApiServer>
+        {
+            new() { Url = "/" }
+        };
+
+                    return Task.CompletedTask;
+                });
+            });
             builder.Services.AddInfrastructureServices(builder.Configuration);
             builder.Services.AddApplicationServices();
             builder.Services.AddCors(options =>
@@ -38,11 +49,20 @@ namespace Famenova.API
             if (app.Environment.IsDevelopment())
             {
 
+               
                 app.MapOpenApi();
-                app.MapScalarApiReference();
+                app.MapScalarApiReference(options =>
+                {
+                    options
+                        .WithOpenApiRoutePattern("/openapi/v1.json");
+                });
+
+
+
+
 
             }
-            
+
             app.UseHttpsRedirection();
 
             app.UseAuthorization();

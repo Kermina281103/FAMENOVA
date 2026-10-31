@@ -9,6 +9,8 @@ using Famenova.Application.Interfaces;
 using Famenova.Application.Specifications;
 using Famenova.Application.Specifications.param;
 using Famenova.Shared.Dtos.Order;
+using Famenova.Shared.Dtos.Pay;
+using Microsoft.EntityFrameworkCore.Migrations.Operations;
 
 namespace Famenova.Application.Services
 {
@@ -18,11 +20,15 @@ namespace Famenova.Application.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly ICartRepository _cartRepo;
         private readonly IMapper _mapper;
-        public OrderService(IUnitOfWork unitOfWork,ICartRepository cartRepo,IMapper mapper)
+        private readonly IOrderConfirmationService _confirmationService;
+        private readonly IPaymentGateWay _paymentGateway;
+        public OrderService(IUnitOfWork unitOfWork,ICartRepository cartRepo,IMapper mapper,IOrderConfirmationService confirmationService,IPaymentGateWay paymentGateway)
         {
             _unitOfWork = unitOfWork;
             _cartRepo = cartRepo;
             _mapper = mapper;
+            _confirmationService = confirmationService;
+            _paymentGateway = paymentGateway;
         }
 
         public async Task<OrderDetailsDto> CreateOrderFromCartAsync(int userId, CreateOrderFromCartDto dto)
@@ -104,6 +110,62 @@ namespace Famenova.Application.Services
 
             return _mapper.Map<OrderDetailsDto>(result);
         }
+
+        public async Task<PayOrderResultDto> PayMyOrderAsync(int id, int userId,PaymentMethod dto )
+        {
+            var spec = new MyOrderDetailsSpecification(id, userId);
+            var order = await _unitOfWork.GetGeneric<Order>().GetByIdAsync(spec);
+            if (order is null)
+                throw new NotFoundException($"Order with Id {id} is not found");
+            switch (dto)
+            {
+                case PaymentMethod.CashOnDelivery:
+                    await _confirmationService.ConfirmAsync(order, PaymentMethod.CashOnDelivery);
+                    await _unitOfWork.SaveChangesAsync();
+                    return new PayOrderResultDto { Order = _mapper.Map<OrderDetailsDto>(order) };
+
+
+                case PaymentMethod.Card:
+                    return await  StartCardPaymentAsync(order);
+
+                 default: throw new BadRequestException("Invalid handeled Method ");
+            }
+            
+            
+        }
+
+        private async Task<PayOrderResultDto> StartCardPaymentAsync(Order order)
+        {
+            if (!order.CanBePaid)
+                throw new BadRequestException("Order can only pay while pending or unpaid");
+            await _confirmationService.EnsureStockAvailableAsync(order);
+
+            var payment = Payment.Create(order.Id, order.Total);
+            var result = await _paymentGateway.CreatePaymentAsync(new PaymentInitRequest(payment.MerchantRefNumber,
+                payment.Amount,
+                order.UserId,
+                order.User.FirstName,
+                order.User.LastName,
+                order.User.Email!, 
+                order.PhoneNumber,
+                order.ShippingAddress.street
+                ,order.ShippingAddress.City,
+                order.OrderItems
+                .Select(i => new PaymentInitItem(i.ProductId, i.Product!.Name, i.Quantity, i.UnitPrice)).ToList()));
+
+            payment.SetProvideReference(result.ProviderReference);
+            await _unitOfWork.GetGeneric<Payment>().AddAsync(payment);
+            await _unitOfWork.SaveChangesAsync();
+
+            return new PayOrderResultDto
+            {
+                Order = _mapper.Map<OrderDetailsDto>(order),
+                PaymentUrl = result.PaymentUrl,
+                MerchantRefNumber = payment.MerchantRefNumber
+
+            };
+        }
+
         //admin
 
         public async Task<PagedResult<OrderListItemDto>> GetAllAsync(OrderSpecParams spec)
@@ -128,15 +190,18 @@ namespace Famenova.Application.Services
         public async Task<OrderDetailsDto> CancelMyOrderAsync(int id, int userId)
         {
             var specification = new MyOrderDetailsSpecification(id, userId);
-            var result = await _unitOfWork.GetGeneric<Order>().GetByIdAsync(specification);
+            var order = await _unitOfWork.GetGeneric<Order>().GetByIdAsync(specification);
 
-            if (result is null)
+            if (order is null)
                 throw new NotFoundException($"There isn't order with id {id}");
-            var result2 = result;
-            result.Cancel();
-            _unitOfWork.GetGeneric<Order>().Remove(result);
+            var shouldReleaseStock = order.IsStockCommitted;
+            
+            order.Cancel();
+            if (shouldReleaseStock)
+                await _confirmationService.ReleaseStockAsync(order);
+            
             await _unitOfWork.SaveChangesAsync();
-           return  _mapper.Map<OrderDetailsDto>(result2);
+           return  _mapper.Map<OrderDetailsDto>(order);
         }
 
         private async Task AddItemsToOrderAsync(Order order,IEnumerable<LineOrder> lines)
@@ -179,7 +244,7 @@ namespace Famenova.Application.Services
 
         }
 
-       
+     
     }
 
     public record LineOrder(int productId,int quantity);

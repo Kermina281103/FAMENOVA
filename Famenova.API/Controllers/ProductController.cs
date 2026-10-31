@@ -29,7 +29,7 @@ namespace Famenova.API.Controllers
             return Ok(ApiResponse<PagedResult<ProductResponseDto>>.Success(result)); 
         }
         [HttpGet("get")]
-        public async Task<ActionResult<ApiResponse>>GetByIdAsync(int id)
+        public async Task<ActionResult<ApiResponse<ProductResponseDto>>>GetByIdAsync(int id)
         {
             var result = await _productService.GetByIdAsync(id);
             return Ok(ApiResponse<ProductResponseDto>.Success(result));

@@ -110,6 +110,9 @@ namespace famenova.Domain.Entities
         public void MarkAsPaid()
         {
             EnsureCanBeConfirmed();
+            if (OrderStatus != OrderStatus.Pending)
+                throw new DomainException(
+                    "Order cannot be confirmed");
             PaymentMethod = Enums.PaymentMethod.Card;
             PaymentStatus = PaymentStatus.Paid;
             OrderStatus = OrderStatus.Processing;

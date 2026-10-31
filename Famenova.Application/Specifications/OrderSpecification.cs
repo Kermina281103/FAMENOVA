@@ -103,12 +103,17 @@ namespace Famenova.Application.Specifications
 
     public class MyOrderDetailsSpecification : BaseSpecification<Order>
     {
-        public MyOrderDetailsSpecification(int id,int userId)
+        public MyOrderDetailsSpecification(int id, int userId)
         {
-            Criteria = c => (c.Id == id) && (c.UserId == userId);
-            AddInclude(query => query.Include(x => x.ShippingAddress));
-            AddInclude(query => query.Include(x => x.OrderItems).ThenInclude(o => o.Product));
+            Criteria = c => c.Id == id && c.UserId == userId;
 
-      }
+            AddInclude(query => query.Include(x => x.User));
+
+            AddInclude(query => query.Include(x => x.ShippingAddress));
+
+            AddInclude(query =>
+                query.Include(x => x.OrderItems)
+                     .ThenInclude(o => o.Product));
+        }
     }
 }

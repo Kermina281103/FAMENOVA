@@ -46,7 +46,7 @@ namespace Famenova.API.Controllers
             return Ok(ApiResponse<CategoryResponseDto>.Success(result));
         }
         [HttpGet]
-       public async Task<ActionResult<PagedResult<CategoryResponseDto>>> GetAll(string?search , string?sort,int pageIndex=1,int pageSize=10)
+       public async Task<ActionResult<ApiResponse<PagedResult<CategoryResponseDto>>>> GetAll(string?search , string?sort,int pageIndex=1,int pageSize=10)
         {
             var result =await  _categoryService.GetAllAsync(search, sort, pageIndex, pageSize);
             return Ok(ApiResponse<PagedResult<CategoryResponseDto>>.Success(result, "Request is completed Successfully  "));

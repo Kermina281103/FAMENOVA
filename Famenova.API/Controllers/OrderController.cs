@@ -1,8 +1,10 @@
-﻿using Famenova.Application.Common.Models;
+﻿using famenova.Domain.Enums;
+using Famenova.Application.Common.Models;
 using Famenova.Application.Interfaces;
 using Famenova.Application.Responses;
 using Famenova.Application.Specifications.param;
 using Famenova.Shared.Dtos.Order;
+using Famenova.Shared.Dtos.Pay;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Famenova.API.Controllers
@@ -34,6 +36,12 @@ namespace Famenova.API.Controllers
             var result = await _orderService.GetMyOrderWithIdAsync(id, userId);
 
             return Ok(ApiResponse<OrderDetailsDto>.Success(result));
+        }
+        [HttpPost("pay")]
+        public async Task<ActionResult<ApiResponse<PayOrderResultDto>>> PayMy(int id,int userId, PaymentMethod  paymentMethod)
+        {
+            var result = await _orderService.PayMyOrderAsync(id, userId, paymentMethod);
+            return Ok(ApiResponse<PayOrderResultDto>.Success(result, "Order confirmed successfully"));
         }
         [HttpGet("getAll")]
         public async Task<ActionResult<ApiResponse<PagedResult<OrderListItemDto>>>> GetAllAsync([FromQuery] OrderSpecParams spec)

@@ -4,6 +4,7 @@
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>d9dc5045-ea60-4b29-864b-3c9c3a7e54c2</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
@@ -24,6 +25,7 @@
 
   <ItemGroup>
     <Folder Include="Extensions\" />
+    <Folder Include="wwwroot\Images\" />
   </ItemGroup>
 
 </Project>

@@ -1,5 +1,6 @@
 ﻿using Famenova.Application.Interfaces;
 using Famenova.Application.Services;
+using Famenova.Application.Specifications;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -24,7 +25,8 @@ namespace Famenova.Application
             service.AddScoped<ICartService, CartService>();
             service.AddScoped<IOrderService, OrderService>();
             service.AddScoped<IProductService, ProductService>();
-
+            service.AddScoped<IOrderConfirmationService, OrderConfirmationService>();
+            service.AddScoped<IPaymentWebhookService, PaymentWebhookService>();
             return service;
         }
     }

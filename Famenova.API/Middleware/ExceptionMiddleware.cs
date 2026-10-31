@@ -87,6 +87,7 @@ namespace Famenova.API.Middleware
             {
                 //Log to console in development
                 _logger.LogError(ex, ex.Message);
+         
             }
             else
             {
