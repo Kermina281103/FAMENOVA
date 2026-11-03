@@ -24,7 +24,8 @@ namespace famenova.Infrastructure.Data.Configurations
 
             builder.Property(p => p.Price)
                 .HasColumnType("decimal(18,2)");
-
+            builder.Property(p => p.VariantLabel).HasMaxLength(50);
+            builder.HasIndex(p => p.ProductGroupId);
 
             builder.HasOne(p => p.Category)
                 .WithMany(c => c.products)

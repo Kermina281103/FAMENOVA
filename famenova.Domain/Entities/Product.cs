@@ -18,6 +18,8 @@ namespace famenova.Domain.Entities
         public bool IsDeleted { get; set; } = false;
         public Category Category { get; set; } = default!;
         public int CategoryId { get; set; }
+        public int? ProductGroupId { get; set; }
+        public string? VariantLabel { get; set; }
 
         public void IncreaseStock(int quantity)
         {

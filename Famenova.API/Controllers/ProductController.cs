@@ -17,6 +17,7 @@ namespace Famenova.API.Controllers
         }
 
         [HttpPost("add-product")]
+        [Consumes("multipart/form-data")]
         public async Task<ActionResult<ApiResponse<ProductResponseDto>>> CreateAsync(CreateProductDto dto)
         {
             var result =await _productService.CreateProductAsync(dto);
@@ -36,6 +37,7 @@ namespace Famenova.API.Controllers
         }
 
         [HttpPut("update")]
+        [Consumes("multipart/form-data")]
         public async Task<ActionResult<ApiResponse<ProductResponseDto>>> UpdateAsync(int productId, UpdateProductDto dto)
         {
             var result = await _productService.UpdateAsync( productId, dto);

@@ -43,6 +43,7 @@ namespace Famenova.API
                 });
             });
             var app = builder.Build();
+            app.UseStaticFiles();
             app.UseCors("AngularPolicy");
             app.UseMiddleware<ExceptionMiddleware>();
             // Configure the HTTP request pipeline.

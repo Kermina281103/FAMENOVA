@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="16.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.22" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.17" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.9">
       <PrivateAssets>all</PrivateAssets>
@@ -25,7 +26,8 @@
 
   <ItemGroup>
     <Folder Include="Extensions\" />
-    <Folder Include="wwwroot\Images\" />
+    <Folder Include="wwwroot\Images\Medicines\" />
+    <Folder Include="wwwroot\Products\" />
   </ItemGroup>
 
 </Project>

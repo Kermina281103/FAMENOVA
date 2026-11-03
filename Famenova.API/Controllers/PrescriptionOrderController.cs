@@ -22,6 +22,7 @@ namespace Famenova.API.Controllers
         }
 
         [HttpPost("create")]
+        [Consumes("multipart/form-data")]
         public async Task<ActionResult<ApiResponse<PrescriptionOrderResponseDto>>> CreateAsyn(CreatePrescriptionOrderDto dto,int customerId)
         {
             var result = await _prescriptionOrderService.CreateAsync(dto, customerId);
@@ -78,6 +79,7 @@ namespace Famenova.API.Controllers
             return Ok(ApiResponse<PrescriptionOrderResponseDto>.Success(result));
         }
         [HttpPost("provideClarification")]
+        [Consumes("multipart/form-data")]
         public async Task<ActionResult<PrescriptionOrderResponseDto>> ProvideClarificationAsync(int id,int customerId, [FromBody] ProvideClarificationDto dto)
         {
             var result = await _prescriptionOrderService.ProvideClarificationAsync(id,customerId,dto);

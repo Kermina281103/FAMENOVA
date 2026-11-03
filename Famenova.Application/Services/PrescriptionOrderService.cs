@@ -5,6 +5,7 @@ using famenova.Domain.Interfaces;
 using Famenova.Application.Common.Models;
 using Famenova.Application.Exceptions;
 using Famenova.Application.Interfaces;
+using Famenova.Application.Services.Files;
 using Famenova.Application.Specifications;
 using Famenova.Shared.Dtos.Order;
 using Famenova.Shared.Dtos.PrescriptionOrder;
@@ -15,11 +16,13 @@ namespace Famenova.Application.Services
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
+        private readonly IFileService _fileService;
 
-        public PrescriptionOrderService(IUnitOfWork unitOfWork, IMapper mapper)
+        public PrescriptionOrderService(IUnitOfWork unitOfWork, IMapper mapper,IFileService fileService)
         {
             _unitOfWork = unitOfWork;
-            _mapper = mapper;   
+            _mapper = mapper;
+            _fileService = fileService;
         }
         //customer
          public async Task<PrescriptionOrderResponseDto>  CreateAsync(CreatePrescriptionOrderDto dto, int customerId)
@@ -30,7 +33,22 @@ namespace Famenova.Application.Services
 
            var order= _mapper.Map<PrescriptionOrder>(dto);
             order.CustomerId = customerId;
-            await _unitOfWork.GetGeneric<PrescriptionOrder>().AddAsync(order);
+
+            if(order.PrescriptionImageUrl is null)
+                order.PrescriptionImageUrl = await _fileService.SaveImageAsync(dto.PrescriptionImageUrl, "Prescriptions");
+            else
+            {
+                if(order.ClarificationImageUrl is null)
+                    order.ClarificationImageUrl = await _fileService.SaveImageAsync(dto.PrescriptionImageUrl, "Prescriptions");
+                else
+                {
+                    _fileService.DeleteImage(order.ClarificationImageUrl);
+                    order.ClarificationImageUrl = await _fileService.SaveImageAsync(dto.PrescriptionImageUrl, "Prescriptions");
+                }
+            }
+               
+
+                await _unitOfWork.GetGeneric<PrescriptionOrder>().AddAsync(order);
             await  _unitOfWork.SaveChangesAsync();
 
             return _mapper.Map<PrescriptionOrder, PrescriptionOrderResponseDto>(order);
@@ -168,8 +186,8 @@ namespace Famenova.Application.Services
 
             var prescriptionOrder = await _unitOfWork.GetGeneric<PrescriptionOrder>().GetByIdAsync(spec)
                 ?? throw new NotFoundException($"Prescription With Id {id} is not found");
-
-            prescriptionOrder.ProiveClarfication(dto.Response, dto.ImageUrl);
+            var img = await _fileService.SaveImageAsync(dto.ImageUrl, "Prescriptions");
+            prescriptionOrder.ProiveClarfication(dto.Response, img);
             await _unitOfWork.SaveChangesAsync();
             return _mapper.Map<PrescriptionOrderResponseDto>(prescriptionOrder);
         }

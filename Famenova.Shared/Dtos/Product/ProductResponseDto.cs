@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -17,5 +18,7 @@ namespace Famenova.Shared.Dtos.Product
         public bool IsDeleted { get; set; } = false;
 
         public string CategoryName { get; set; } = default!;
+        public string? VariantLabel { get; set; }
+        public List<ProductVariantDto> Variants { get; set; } = new();
     }
 }

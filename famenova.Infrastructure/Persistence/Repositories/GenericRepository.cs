@@ -34,6 +34,11 @@ namespace famenova.Infrastructure.Persistence.Repositories
         {
             return await _context.Set<TEntity>().FindAsync(id);
         }
+        public async Task<IReadOnlyList<TEntity>> ListAsync(ISpecification<TEntity> spec)
+        {
+            return await SpecificationEvaluator.GetQuery(_context.Set<TEntity>(), spec).ToListAsync();
+        }
+
 
         public async Task<PagedResult<TEntity>> GetPagedAsync(ISpecification<TEntity> specification)
         {

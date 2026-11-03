@@ -5,6 +5,7 @@ using Famenova.Application.Common.Models;
 using Famenova.Application.Dtos.Category;
 using Famenova.Application.Exceptions;
 using Famenova.Application.Interfaces;
+using Famenova.Application.Services.Files;
 using Famenova.Application.Specifications;
 using Microsoft.EntityFrameworkCore.Storage;
 using System;
@@ -15,7 +16,7 @@ using System.Threading.Tasks;
 
 namespace Famenova.Application.Services
 {
-    public class CategoryService(IUnitOfWork _unitOfWork, IMapper _mapper) : ICategoryService
+    public class CategoryService(IUnitOfWork _unitOfWork, IMapper _mapper,IFileService _fileService) : ICategoryService
     {
       
         public async Task<CategoryResponseDto> CreateAsync(CreateCategoryDto dto)
@@ -51,7 +52,7 @@ namespace Famenova.Application.Services
             {
                 category.DisplayOrder = dto.DisplayOrder.Value;
             }
-
+            category.ImageUrl = await _fileService.SaveImageAsync(dto.ImageUrl!, "Categories");
                 await CategoryRepo.AddAsync(category);
             await _unitOfWork.SaveChangesAsync();
 
@@ -155,8 +156,12 @@ namespace Famenova.Application.Services
                 findCat.Name = dto.Name;
             if (!string.IsNullOrEmpty(dto.Description))
                 findCat.Description = dto.Description;
-            if (!string.IsNullOrEmpty(dto.ImageUrl))
-                findCat.ImageUrl = dto.ImageUrl;
+           if(dto.ImageUrl != null)
+            {
+                _fileService.DeleteImage(findCat.ImageUrl);
+                await _fileService.SaveImageAsync(dto.ImageUrl, "Categories");
+
+            }
            
 
 

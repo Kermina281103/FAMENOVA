@@ -22,7 +22,9 @@ namespace Famenova.Shared.Dtos.Medicine
         public bool IsDeleted { get; set; } = false;
 
         public string CategoryName { get; set; } = default!;
-        
+        public string? VariantLabel { get; set; }                          // 🆕
+        public List<MedicineVariantDto> Variants { get; set; } = new();
+
 
     }
 }
