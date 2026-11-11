@@ -15,7 +15,7 @@ namespace Famenova.Application.Interfaces
     public interface IPrescriptionOrderService
     {
         //Customer
-        Task<PrescriptionOrderResponseDto> CreateAsync(CreatePrescriptionOrderDto dto, int customerId);
+        Task<PrescriptionOrderResponseDto> CreateAsync(CreatePrescriptionOrderDto dto, int  customerId);
 
         Task<PrescriptionOrderResponseDto> RejectByCustomerAsync(int id, int customerId);
         Task<OrderDetailsDto> ApproveByCustomerAsync(int id, int customerId);

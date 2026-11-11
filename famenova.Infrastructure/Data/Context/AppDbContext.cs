@@ -8,13 +8,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Reflection.Emit;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace famenova.Infrastructure.Data.Context
 {
     public class AppDbContext : IdentityDbContext<ApplicationUser,
-    IdentityRole<int>, 
+    IdentityRole<int>,
     int,               
     IdentityUserClaim<int>,
     IdentityUserRole<int>,
@@ -35,6 +36,8 @@ namespace famenova.Infrastructure.Data.Context
         public DbSet<PrescriptionOrder> PrescriptionOrder { get; set; }
         public DbSet<PrescriptionOrderItem> PrescriptionOrderItem { get; set; }
         public DbSet<LogEntry> LogEntries { get; set; }
+        public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
+        public DbSet<OtpCode> OtpCodes => Set<OtpCode>();
 
         #endregion
 
@@ -45,6 +48,21 @@ namespace famenova.Infrastructure.Data.Context
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
+            builder.Entity<RefreshToken>(e =>
+            {
+                e.Property(t => t.TokenHash).HasMaxLength(64);
+                e.HasIndex(t => t.TokenHash).IsUnique();
+                e.HasOne<ApplicationUser>().WithMany().HasForeignKey(x => x.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            builder.Entity<OtpCode>(e =>
+            {
+                e.Property(o => o.CodeHash).HasMaxLength(64);
+                e.HasIndex(o => new { o.UserId });
+                e.HasOne<ApplicationUser>().WithMany().HasForeignKey(o => o.UserId)
+                 .OnDelete(DeleteBehavior.Cascade);
+            });
             builder.Entity<LogEntry>().HasNoKey();
             builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
             builder.Entity<IdentityRole<int>>().HasData(

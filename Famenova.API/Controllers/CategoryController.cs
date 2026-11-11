@@ -2,13 +2,18 @@
 using Famenova.Application.Dtos.Category;
 using Famenova.Application.Interfaces;
 using Famenova.Application.Responses;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace Famenova.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+
+    [Authorize(AuthenticationSchemes =JwtBearerDefaults.AuthenticationScheme,Roles = "Admin")]
     public class CategoryController:ControllerBase
     {
         private readonly ICategoryService _categoryService;
@@ -21,6 +26,7 @@ namespace Famenova.API.Controllers
         [HttpPost]
         public async Task<ActionResult<ApiResponse<CategoryResponseDto>>>  CreateAsync(CreateCategoryDto dto)
         {
+           
             var result = await _categoryService.CreateAsync(dto);
             return Ok(ApiResponse<CategoryResponseDto>.Success(result, "Category Added Successfully"));
         }
@@ -28,6 +34,7 @@ namespace Famenova.API.Controllers
         [HttpPut("{id}")]
         public async Task<ActionResult<ApiResponse<CategoryResponseDto>>> UpdateAsync(int id ,UpdateCategoryDto dto)
         {
+            
             var result = await _categoryService.UpdateAsync(id,dto);
             return Ok(ApiResponse<CategoryResponseDto>.Success(result, "Category Updated Successfully   "));
         }

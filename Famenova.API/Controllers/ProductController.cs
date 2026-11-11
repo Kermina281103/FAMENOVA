@@ -1,13 +1,18 @@
-﻿using Famenova.Application.Common.Models;
+﻿using famenova.Domain.Constants;
+using Famenova.Application.Common.Models;
 using Famenova.Application.Interfaces;
 using Famenova.Application.Responses;
 using Famenova.Shared.Dtos.Product;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Famenova.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = AppRoles.Admin)]
+
     public class ProductController:ControllerBase
     {
         private readonly IProductService _productService;
@@ -38,6 +43,7 @@ namespace Famenova.API.Controllers
 
         [HttpPut("update")]
         [Consumes("multipart/form-data")]
+
         public async Task<ActionResult<ApiResponse<ProductResponseDto>>> UpdateAsync(int productId, UpdateProductDto dto)
         {
             var result = await _productService.UpdateAsync( productId, dto);

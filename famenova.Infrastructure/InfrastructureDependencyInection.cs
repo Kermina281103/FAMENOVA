@@ -14,6 +14,9 @@ using Microsoft.Extensions.DependencyInjection;
 using StackExchange.Redis;
 
 using famenova.Domain.Entities;
+using Famenova.Application.Jwt;
+using famenova.Infrastructure.Jwt;
+using Famenova.Application.Services;
 
 
 namespace famenova.Infrastructure
@@ -62,6 +65,20 @@ namespace famenova.Infrastructure
                 throw new InvalidOperationException("Unknown payment gateway configuration");
             }
 
+            services.Configure<JwtOptions>(configuration.GetSection(JwtOptions.SectionName));
+            services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
+            services.AddScoped<IAuthService, AuthService>();
+
+            services.AddIdentityCore<ApplicationUser>(options =>
+            {
+                options.User.RequireUniqueEmail = true;
+                options.Password.RequiredLength = 8;
+                options.Password.RequireDigit = true;
+                options.Lockout.MaxFailedAccessAttempts = 5;
+                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
+            })
+                .AddRoles<IdentityRole<int>>()
+                .AddEntityFrameworkStores<AppDbContext>();
                 return services;
         }
     }

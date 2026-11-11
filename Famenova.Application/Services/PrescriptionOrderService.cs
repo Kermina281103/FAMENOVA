@@ -108,14 +108,7 @@ namespace Famenova.Application.Services
         }
 
         //admin 
-       public async Task<PrescriptionOrderResponseDto> RequestClarificationAsync(int id,string message) {
-
-            var result = await GetForPharmacyAsync(id);
-            result.RequestClarification(message);
-            await _unitOfWork.SaveChangesAsync();
-            return _mapper.Map<PrescriptionOrderResponseDto>(result);
-
-        }
+     
       public async Task<PrescriptionOrderResponseDto> ResumeReviewAsync(int id) {
             var result = await GetForPharmacyAsync(id);
             result.ResumeReview();
@@ -190,6 +183,15 @@ namespace Famenova.Application.Services
             prescriptionOrder.ProiveClarfication(dto.Response, img);
             await _unitOfWork.SaveChangesAsync();
             return _mapper.Map<PrescriptionOrderResponseDto>(prescriptionOrder);
+        }
+
+        public async Task<PrescriptionOrderResponseDto> RequestClarificationAsync(int id, string message)
+        {
+            var result = await GetForPharmacyAsync(id);
+            result.RequestClarification(message);
+            await _unitOfWork.SaveChangesAsync();
+            return _mapper.Map<PrescriptionOrderResponseDto>(result);
+
         }
     }
 }

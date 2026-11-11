@@ -1,12 +1,14 @@
 ﻿using famenova.Domain.Exceptions;
 using famenova.Infrastructure.Data.Context;
 using Famenova.Application.Exceptions;
+using Famenova.Application.Interfaces;
 using Famenova.Application.Responses;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.IdentityModel.Abstractions;
 using System.ComponentModel.DataAnnotations;
 using System.Net;
 using AppValidationException = Famenova.Application.Exceptions.ValidationException;
+using UnauthorizedException = Famenova.Application.Interfaces.UnauthorizedException;
 
 namespace Famenova.API.Middleware
 {
@@ -48,8 +50,7 @@ namespace Famenova.API.Middleware
                 NotFoundException e =>
                 ApiResponse.Failure(e.Message, (int)HttpStatusCode.NotFound),
 
-                UnauthorizedException e =>
-                ApiResponse.Failure(e.Message, (int)HttpStatusCode.Unauthorized),
+              
 
                 BadRequestException e =>
                 ApiResponse.Failure(e.Message, (int)HttpStatusCode.BadRequest),
@@ -60,7 +61,9 @@ namespace Famenova.API.Middleware
                 ApiResponse.Failure(e.Message, (int)HttpStatusCode.Conflict),
                 DomainException e=>
                 ApiResponse.Failure(e.Message,(int)HttpStatusCode.BadRequest),
-
+                
+               UnauthorizedException e=>
+               ApiResponse.Failure(ex.Message,StatusCodes.Status401Unauthorized),
                 AppValidationException e =>
                 ApiValidationResponse.ValidationFail(e.Errors),
 
@@ -75,6 +78,8 @@ namespace Famenova.API.Middleware
 
 
             };
+            context.Response.StatusCode = response.StatusCode;  
+
             context.Response.ContentType = "application/json";
             await context.Response.WriteAsync(response.ToString());
         }

@@ -1,14 +1,18 @@
-﻿using Famenova.Application.Common.Models;
+﻿using famenova.Domain.Constants;
+using Famenova.Application.Common.Models;
 using Famenova.Application.Interfaces;
 using Famenova.Application.Responses;
 using Famenova.Shared.Dtos.Medicine;
 using Famenova.Shared.Dtos.MedicineBatch;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Famenova.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize(AuthenticationSchemes =JwtBearerDefaults.AuthenticationScheme,Roles =AppRoles.Admin)]
     public class MedicineBatchController: ControllerBase
     {
         private readonly IMedicineBatchService _medicineBatchService;

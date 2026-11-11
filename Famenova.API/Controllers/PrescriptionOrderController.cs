@@ -1,9 +1,11 @@
-﻿using Famenova.Application.Common.Models;
+﻿using famenova.Domain.Constants;
+using Famenova.Application.Common.Models;
 using Famenova.Application.Interfaces;
 using Famenova.Application.Responses;
 using Famenova.Application.Specifications;
 using Famenova.Shared.Dtos.Order;
 using Famenova.Shared.Dtos.PrescriptionOrder;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -23,36 +25,51 @@ namespace Famenova.API.Controllers
 
         [HttpPost("create")]
         [Consumes("multipart/form-data")]
-        public async Task<ActionResult<ApiResponse<PrescriptionOrderResponseDto>>> CreateAsyn(CreatePrescriptionOrderDto dto,int customerId)
+        [Authorize(AuthenticationSchemes =JwtBearerDefaults.AuthenticationScheme,Roles =AppRoles.Customer)]
+        public async Task<ActionResult<ApiResponse<PrescriptionOrderResponseDto>>> CreateAsyn(CreatePrescriptionOrderDto dto)
         {
-            var result = await _prescriptionOrderService.CreateAsync(dto, customerId);
+            var uid = User.GetUserId();
+
+            var result = await _prescriptionOrderService.CreateAsync(dto, uid);
             return Ok(ApiResponse<PrescriptionOrderResponseDto>.Success(result, "Prescription Order created successfully"));
         }
         [HttpGet("my")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = AppRoles.Customer)]
+
         public async Task<ActionResult<ApiResponse<PagedResult<PrescriptionOrderListItemDto>>>> GetMyAsync([FromQuery]PrescriptionOrderSpecParams dto , [FromQuery]int customerId)
+
         {
-            var result = await _prescriptionOrderService.GetMyPrescriptionOrderAsync(dto, customerId);
+            var uid = User.GetUserId();
+            var result = await _prescriptionOrderService.GetMyPrescriptionOrderAsync(dto, uid);
             return Ok(ApiResponse<PagedResult<PrescriptionOrderListItemDto>>.Success(result, "Request is completed Succesfully"));
         }
 
         [HttpGet("myWithId")]
-        public async Task<ActionResult<ApiResponse<PrescriptionOrderDetailsDto>>> GetMyWithIdAsync(int id,int customerId)
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = AppRoles.Customer)]
+        public async Task<ActionResult<ApiResponse<PagedResult<PrescriptionOrderListItemDto>>>> GetMyWithIdAsync(PrescriptionOrderSpecParams dto)
         {
-            var result = await _prescriptionOrderService.GetMyPrescriptionOrderAsync(id, customerId);
-            return Ok(ApiResponse<PrescriptionOrderDetailsDto>.Success(result, "Request Completed Succesffully"));
+            var uid = User.GetUserId();
+            var result = await _prescriptionOrderService.GetMyPrescriptionOrderAsync(dto, uid);
+            return Ok(ApiResponse<PagedResult<PrescriptionOrderListItemDto>>.Success(result, "Request Completed Succesffully"));
         }
 
         [HttpPost("approveCustomer")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = AppRoles.Customer)]
         public async Task<ActionResult<OrderDetailsDto>> ApprovedByCustomerAsyn(int id , int customerId)
         {
-            var result = await _prescriptionOrderService.ApproveByCustomerAsync(id, customerId);
+            var uid = User.GetUserId();
+
+            var result = await _prescriptionOrderService.ApproveByCustomerAsync(id, uid);
             return Ok(ApiResponse<OrderDetailsDto>.Success(result, "Request approved by customer"));
         }
 
         [HttpPost("rejectCustomer")]
-        public async Task<ActionResult<PrescriptionOrderResponseDto>>RejectedByCustomerAsync(int id,int customerId)
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = AppRoles.Customer)]
+
+        public async Task<ActionResult<PrescriptionOrderResponseDto>>RejectedByCustomerAsync(int id)
         {
-            var result = await _prescriptionOrderService.RejectByCustomerAsync(id, customerId);
+            var uid = User.GetUserId();
+            var result = await _prescriptionOrderService.RejectByCustomerAsync(id, uid);
             return Ok(ApiResponse<PrescriptionOrderResponseDto>.Success(result, "request rejected by customer"));
         }
 
@@ -60,6 +77,8 @@ namespace Famenova.API.Controllers
         //Admind 
 
         [HttpGet("getAll")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = AppRoles.Admin)]
+
         public async Task<ActionResult<PagedResult<PrescriptionOrderListItemDto>>> GetAllAsync([FromQuery]PrescriptionOrderSpecParams specParams)
         {
             var result = await _prescriptionOrderService.GetAllAsync(specParams);
@@ -67,12 +86,16 @@ namespace Famenova.API.Controllers
         }
 
         [HttpGet("getWithId")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = AppRoles.Admin)]
+
         public async Task<ActionResult<PrescriptionOrderDetailsDto>> GetByIdAsync(int id)
         {
             var result = await _prescriptionOrderService.GetByIdAsync(id);
             return Ok(ApiResponse<PrescriptionOrderDetailsDto>.Success(result));
         }
         [HttpPost("requestClarification")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = AppRoles.Admin)]
+
         public async Task<ActionResult<PrescriptionOrderResponseDto>> RequestClarification(int id, [FromBody] RequestClarificationDto dto)
         {
             var result = await _prescriptionOrderService.RequestClarificationAsync(id,dto.Message);
@@ -80,9 +103,12 @@ namespace Famenova.API.Controllers
         }
         [HttpPost("provideClarification")]
         [Consumes("multipart/form-data")]
-        public async Task<ActionResult<PrescriptionOrderResponseDto>> ProvideClarificationAsync(int id,int customerId, [FromBody] ProvideClarificationDto dto)
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = AppRoles.Admin)]
+
+        public async Task<ActionResult<PrescriptionOrderResponseDto>> ProvideClarificationAsync(int id, [FromBody] ProvideClarificationDto dto)
         {
-            var result = await _prescriptionOrderService.ProvideClarificationAsync(id,customerId,dto);
+            var uid = User.GetUserId();
+            var result = await _prescriptionOrderService.ProvideClarificationAsync(id,uid,dto);
             return Ok(ApiResponse<PrescriptionOrderResponseDto>.Success(result));
 
 
@@ -90,6 +116,8 @@ namespace Famenova.API.Controllers
         }
 
         [HttpPost("resume")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = AppRoles.Admin)]
+
         public async Task<ActionResult<PrescriptionOrderResponseDto>> ResumeReview(int id)
         {
             var result = await _prescriptionOrderService.ResumeReviewAsync(id);
@@ -97,6 +125,8 @@ namespace Famenova.API.Controllers
         }
 
         [HttpPost("rejectByAdmin")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = AppRoles.Admin)]
+
         public async Task<ActionResult<PrescriptionOrderResponseDto>> RejectByPharmacy(
             int id, RejectPrescriptionOrderDto rejectReason)
         {
@@ -105,7 +135,8 @@ namespace Famenova.API.Controllers
         }
 
         [HttpPost("addItem")]
-        
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = AppRoles.Admin)]
+
         public async Task<ActionResult<PrescriptionOrderResponseDto>> AddItem(
             int id, [FromBody] CreatePrescriptionOrderItemDto dto)
         {
@@ -114,14 +145,15 @@ namespace Famenova.API.Controllers
         }
 
         [HttpDelete("removeItem")]
-        
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = AppRoles.Admin)]
+
         public async Task<ActionResult<PrescriptionOrderResponseDto>> RemoveItem(int id, int itemId)
         {
             var result = await _prescriptionOrderService.RemoveItemAsync(id,itemId);
             return Ok(ApiResponse<PrescriptionOrderResponseDto>.Success(result));
         }
         [HttpPost("sendForApproval")]
-       
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = AppRoles.Admin)]
         public async Task<ActionResult<PrescriptionOrderResponseDto>> SendForApproval(int id)
         {
             var result = await _prescriptionOrderService.SendForCustomerApprovaleAsync(id);

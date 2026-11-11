@@ -88,5 +88,10 @@ namespace famenova.Infrastructure.Persistence.Repositories
                 _context.Set<TEntity>(),
                 spec);
         }
+
+        public async Task<TEntity> GetByIdAsync(string id)
+        {
+            return await _context.Set<TEntity>().FindAsync(id);
+        }
     }
 }
