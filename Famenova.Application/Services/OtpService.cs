@@ -27,7 +27,7 @@ namespace Famenova.Application.Services
                 throw new ConflictException("Otp:Pepper is missing from settings");
         }
 
-      
+
 
         public async Task SendAsync(int userId, string email)
         {
@@ -36,49 +36,62 @@ namespace Famenova.Application.Services
             var old = (await repo.GetAllAsync(o => o.UserId == userId && !o.IsUsed)).ToList();
 
             if (old.Any(o => o.CreatedAtUtc > DateTime.UtcNow.AddSeconds(-60)))
-            {
-                throw new BadRequestException("Please wait a minute before sending a new ");
-            }
+                throw new BadRequestException("Please wait a minute before requesting a new code.");
+
             foreach (var o in old) o.IsUsed = true;
+
             var code = RandomNumberGenerator.GetInt32(0, 1_000_000).ToString("D6");
-            await repo.AddAsync(new OtpCode
+
+            var otp = new OtpCode
             {
                 UserId = userId,
-                CodeHash = Hash(userId, code.ToString()),
+                CodeHash = Hash(userId, code),
                 ExpiresAtUtc = DateTime.UtcNow.AddMinutes(5)
+            };
 
-            });
+            await repo.AddAsync(otp);
             await _unitOfWork.SaveChangesAsync();
-            await _sender.SendAsync(email, code); 
+
+            try
+            {
+                await _sender.SendAsync(email, code);
+            }
+            catch
+            {
+                otp.IsUsed = true;
+                await _unitOfWork.SaveChangesAsync();
+                throw;
+            }
         }
 
         public async Task VerifyAsync(int userId, string code)
         {
             var otp = (await _unitOfWork.GetGeneric<OtpCode>()
-                 .GetAllAsync(o => o.UserId == userId && !o.IsUsed))
-                 .OrderByDescending(o => o.CreatedAtUtc)
-                 .FirstOrDefault();
+                    .GetAllAsync(o => o.UserId == userId && !o.IsUsed))
+                .OrderByDescending(o => o.CreatedAtUtc)
+                .FirstOrDefault();
 
-            if (otp is null || otp.ExpiresAtUtc < DateTime.UtcNow | otp.FailedAttempts >= 5)
-                throw new BadRequestException("Invalid Otp");
+            if (otp is null || otp.ExpiresAtUtc < DateTime.UtcNow || otp.FailedAttempts >= 5)
+                throw new BadRequestException("Invalid or expired code.");
 
-            if (otp.CodeHash != Hash(userId, code))
+            var matches = CryptographicOperations.FixedTimeEquals(
+                Encoding.UTF8.GetBytes(otp.CodeHash),
+                Encoding.UTF8.GetBytes(Hash(userId, code)));
+
+            if (!matches)
             {
                 otp.FailedAttempts++;
                 await _unitOfWork.SaveChangesAsync();
-                throw new BadRequestException("Invalid Otp ");
+                throw new BadRequestException("Invalid or expired code.");
             }
 
             otp.IsUsed = true;
             await _unitOfWork.SaveChangesAsync();
-                
         }
 
         private string Hash(int userId, string code)
-        {
-          return (Convert.ToHexString(HMACSHA256.HashData(
-            Encoding.UTF8.GetBytes(_pepper),
-            Encoding.UTF8.GetBytes($"{userId}:{code}"))));
-        }
+            => Convert.ToHexString(HMACSHA256.HashData(
+                Encoding.UTF8.GetBytes(_pepper),
+                Encoding.UTF8.GetBytes($"{userId}:{code}")));
     }
 }

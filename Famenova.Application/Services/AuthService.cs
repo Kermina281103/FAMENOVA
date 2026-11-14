@@ -122,52 +122,44 @@ namespace Famenova.Application.Services
             await _unitOfWork.SaveChangesAsync();
 
         }
-
-        public async Task<string> ResetPasswordAsync(ResetPasswordDto request)
+        public async Task ResetPasswordAsync(ResetPasswordDto request)
         {
+            var errors = new List<string>();
+            foreach (var validator in _userManager.PasswordValidators)
+            {
+                var check = await validator.ValidateAsync(_userManager, new ApplicationUser(), request.NewPassword);
+                if (!check.Succeeded)
+                    errors.AddRange(check.Errors.Select(e => e.Description));
+            }
+            if (errors.Count > 0)
+                throw new BadRequestException(string.Join(" | ", errors));
+
+            // 2) اليوزر
             var user = await _userManager.FindByEmailAsync(request.Email);
+            if (user is null || !user.EmailConfirmed)
+                throw new BadRequestException("Invalid or expired code.");
 
-            if (user is null)
-                throw new NotFoundException("User is not found");
+            await _otpService.VerifyAsync(user.Id, request.OtpCode);
 
-            if (user.OtpCode is null)
-                throw new BadRequestException("Please Request otp first ");
-            if (user.ExpiryOtp <= DateTime.UtcNow)
-                throw new BadRequestException("Otp Expired , try again");
-            if (user.OtpCode != request.OtpCode)
-                throw new BadRequestException("invalid otp ");
-
-            //Reset Password 
             var token = await _userManager.GeneratePasswordResetTokenAsync(user);
             var result = await _userManager.ResetPasswordAsync(user, token, request.NewPassword);
-
             if (!result.Succeeded)
-                throw new BadRequestException(result.Errors.First().Description);
+                throw new BadRequestException(string.Join(" | ", result.Errors.Select(e => e.Description)));
 
-            //Clear otp 
-            user.OtpCode = null;
-            user.ExpiryOtp = null;
-            await _userManager.UpdateAsync(user);
-            return "Password reset password";
-
+            await RevokeAllForUserAsync(user.Id);
         }
-    
-        public async Task<string> ForgetPasswordAsync(string email)
+        public async Task ForgetPasswordAsync(string email)
         {
             var user = await _userManager.FindByEmailAsync(email);
-            if (user is null)
-                throw new NotFoundException("User is not found");
 
-            if (user.Status != AccountStatus.Active)
-                throw new UnauthorizedException("Account is not active!");
+           
+            if (user is null || user.Status != AccountStatus.Active)
+                return;
 
-            var otp = _otpService.SendAsync(user.Id, email);
-            user.OtpCode = otp.ToString();
-            user.ExpiryOtp = DateTime.UtcNow.AddMinutes(10);
-
-            await _userManager.UpdateAsync(user);
-            return otp.ToString();
+            await _otpService.SendAsync(user.Id, email);
         }
+
+
         private async Task<AuthResponseDto> BuildResponseAsync(ApplicationUser user, RefreshToken? tokenToRotate = null)
         {
             var roles = await _userManager.GetRolesAsync(user);

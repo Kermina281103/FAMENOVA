@@ -71,16 +71,16 @@ namespace Famenova.API.Controllers
         }
 
         [HttpPost("forget-password")]
-        public async Task<ActionResult<string>> ForgestPassword([FromBody] string email)
+        public async Task<ActionResult> ForgetPassword([FromForm] string email)
         {
-            var result = await _authService.ForgetPasswordAsync(email);
-            return Ok(ApiResponse<string>.Success(result, $"Otp is {result}"));
+            await _authService.ForgetPasswordAsync(email);
+            return Ok(new { message = "If the account exists, a code was sent." });
         }
         [HttpPost("reset-password")]
-        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto request)
+        public async Task<ActionResult> ResetPassword([FromBody] ResetPasswordDto request)
         {
-            var result = await _authService.ResetPasswordAsync(request);
-            return Ok(ApiResponse<string>.Success(result, "reset successfully"));
+             await _authService.ResetPasswordAsync(request);
+            return Ok(new { message = "Reset Password Done successfully " });
         }
 
     }

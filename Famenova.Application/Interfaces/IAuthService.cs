@@ -14,8 +14,8 @@ namespace Famenova.Application.Interfaces
         Task<AuthResponseDto> RefreshAsync(string refreshToken);
         Task LogoutAsync(string refreshToken);
         Task RevokeAllForUserAsync(int userId);
-        Task<string> ResetPasswordAsync(ResetPasswordDto request);
-        Task<string> ForgetPasswordAsync(string email);
+        Task ResetPasswordAsync(ResetPasswordDto request);
+        Task ForgetPasswordAsync(string email);
         
         }
     public class UnauthorizedException : Exception
