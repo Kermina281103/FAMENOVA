@@ -24,7 +24,7 @@ namespace Famenova.API.Controllers
         }
         
         [HttpPost]
-        public async Task<ActionResult<ApiResponse<CategoryResponseDto>>>  CreateAsync(CreateCategoryDto dto)
+        public async Task<ActionResult<ApiResponse<CategoryResponseDto>>>  CreateAsync([FromForm] CreateCategoryDto dto)
         {
            
             var result = await _categoryService.CreateAsync(dto);
@@ -32,7 +32,7 @@ namespace Famenova.API.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult<ApiResponse<CategoryResponseDto>>> UpdateAsync(int id ,UpdateCategoryDto dto)
+        public async Task<ActionResult<ApiResponse<CategoryResponseDto>>> UpdateAsync(int id ,[FromForm]UpdateCategoryDto dto)
         {
             
             var result = await _categoryService.UpdateAsync(id,dto);

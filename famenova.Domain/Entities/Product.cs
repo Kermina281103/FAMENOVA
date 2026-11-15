@@ -1,4 +1,5 @@
 ﻿using famenova.Domain.Common;
+using Famenova.Shared;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -24,7 +25,7 @@ namespace famenova.Domain.Entities
         public void IncreaseStock(int quantity)
         {
             if (quantity <= 0)
-                throw new ArgumentException("Quantity must be greater than zero.");
+                throw new BadRequestException("Quantity must be greater than zero.");
 
             Stock += quantity;
         }
@@ -32,10 +33,10 @@ namespace famenova.Domain.Entities
         public void DecreaseStock(int quantity)
         {
             if (quantity <= 0)
-                throw new ArgumentException("Quantity must be greater than zero.");
+                throw new BadRequestException("Quantity must be greater than zero.");
 
             if (quantity > Stock)
-                throw new InvalidOperationException("Insufficient stock.");
+                throw new BadRequestException("Insufficient stock.");
 
             Stock -= quantity;
         }
@@ -43,7 +44,7 @@ namespace famenova.Domain.Entities
         public void AdjustStock(int difference)
         {
             if (Stock + difference < 0)
-                throw new InvalidOperationException("Stock cannot be negative.");
+                throw new BadRequestException("Stock cannot be negative.");
 
             Stock += difference;
         }

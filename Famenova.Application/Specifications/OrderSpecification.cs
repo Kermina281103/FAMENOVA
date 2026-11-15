@@ -20,7 +20,7 @@ namespace Famenova.Application.Specifications
             var trim = spec.search?.Trim();
 
             return c =>
-        (c.UserId==spec.customerId ) &&
+        (!spec.customerId.HasValue || c.UserId == spec.customerId) &&
         (!spec.paymentStatus.HasValue || c.PaymentStatus == spec.paymentStatus.Value) &&
         (!spec.paymentMethod.HasValue || c.PaymentMethod == spec.paymentMethod.Value) &&
         (!spec.orderStatus.HasValue || c.OrderStatus == spec.orderStatus.Value) &&

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Famenova.Application.Exceptions
+namespace Famenova.Shared
 {
     public class UnauthorizedException : BaseException
     {

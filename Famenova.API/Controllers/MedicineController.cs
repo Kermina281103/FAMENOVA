@@ -25,7 +25,7 @@ namespace Famenova.API.Controllers
 
         [HttpPost]
         [Consumes("multipart/form-data")]
-        public async Task<ActionResult<ApiResponse<MedicineResponseDto>>> CreateAsync(CreateMedicineDto dto)
+        public async Task<ActionResult<ApiResponse<MedicineResponseDto>>> CreateAsync([FromForm] CreateMedicineDto dto)
         {
             var result = await _medicineService.CreateAsync(dto);
             return Ok(ApiResponse<MedicineResponseDto>.Success(result, "Medicine Added Successfully"));
@@ -33,7 +33,7 @@ namespace Famenova.API.Controllers
 
         [HttpPut("{id}")]
         [Consumes("multipart/form-data")]
-        public async Task<ActionResult<ApiResponse<MedicineResponseDto>>> UpdateAsync(int id, UpdateMedicineDto dto)
+        public async Task<ActionResult<ApiResponse<MedicineResponseDto>>> UpdateAsync(int id,[FromForm]UpdateMedicineDto dto)
         {
             var result = await _medicineService.UpdateAsync(id, dto);
             return Ok(ApiResponse<MedicineResponseDto>.Success(result, "Medicine Updated Successfully   "));
