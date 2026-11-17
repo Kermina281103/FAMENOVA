@@ -13,7 +13,7 @@ namespace Famenova.API.Controllers
 
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize(AuthenticationSchemes =JwtBearerDefaults.AuthenticationScheme,Roles =AppRoles.Admin)]
+   // [Authorize(AuthenticationSchemes =JwtBearerDefaults.AuthenticationScheme,Roles =AppRoles.Admin)]
     public class MedicineController:ControllerBase
     {
         private readonly IMedicineService _medicineService;
@@ -47,12 +47,14 @@ namespace Famenova.API.Controllers
         }
 
         [HttpGet("{id}")]
+        [AllowAnonymous]
         public async Task<ActionResult<ApiResponse<MedicineResponseDto>>> GetByIdAsync(int id)
         {
             var result = await _medicineService.GetByIdAsync(id);
             return Ok(ApiResponse<MedicineResponseDto>.Success(result));
         }
         [HttpGet]
+        [AllowAnonymous]
         public async Task<ActionResult<PagedResult<MedicineResponseDto>>> GetAll(string? search, int? categoryId, bool? requiresPrescription, string? sort, int pageIndex, int pageSize)
         {
             var result = await _medicineService.GetAllAsync(search,categoryId,requiresPrescription,sort,pageIndex,pageSize);

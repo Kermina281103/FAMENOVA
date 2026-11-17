@@ -1,5 +1,4 @@
-﻿using Famenova.Application.Exceptions;
-using Famenova.Application.Interfaces;
+﻿using Famenova.Application.Interfaces;
 using Microsoft.Extensions.Options;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
@@ -8,6 +7,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using famenova.Infrastructure.Payments;
+using Famenova.Shared;
 
 namespace famenova.Infrastructure.Payments
 {

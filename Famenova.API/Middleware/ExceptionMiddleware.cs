@@ -1,13 +1,13 @@
 ﻿using famenova.Domain.Exceptions;
 using famenova.Infrastructure.Data.Context;
-using Famenova.Application.Exceptions;
 using Famenova.Application.Interfaces;
 using Famenova.Application.Responses;
+using Famenova.Shared;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.IdentityModel.Abstractions;
 using System.ComponentModel.DataAnnotations;
 using System.Net;
-using AppValidationException = Famenova.Application.Exceptions.ValidationException;
+using AppValidationException = Famenova.Shared.ValidationException;
 using UnauthorizedException = Famenova.Application.Interfaces.UnauthorizedException;
 
 namespace Famenova.API.Middleware

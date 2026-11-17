@@ -75,7 +75,7 @@ namespace famenova.Infrastructure.Data.Context
             var AdminUser = new ApplicationUser
             {
                 Id = AdminUserId,
-                UserName = "Kermina Maged",
+                UserName = "KerminaMaged",
                 NormalizedUserName = "KERMINA MAGED",
                 Email = "carmina.maged.matta@gmail.com",
                 NormalizedEmail = "CARMINA.MAGED.MATTA@GMAIL.COM",
@@ -85,6 +85,7 @@ namespace famenova.Infrastructure.Data.Context
                 LastName = "Maged",
                 SecurityStamp = "B379A222-38B6-4A59-A92B-3C986EE27F47",
                 ConcurrencyStamp= "C822B111-22B2-4A59-A92B-3C986EE27F48",
+                
                 PasswordHash = "AQAAAAIAAYagAAAAEIe8ZlKz9C/2iIq6E8uL9v27P9XgTux5mX9o8vN9w4X7r+LwW3JzE6n2yM/1z7bXvw=="
             };
            

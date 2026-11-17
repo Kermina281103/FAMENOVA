@@ -1,8 +1,8 @@
 ﻿using AutoMapper;
 using famenova.Domain.Entities;
 using famenova.Domain.Interfaces;
-using Famenova.Application.Exceptions;
 using Famenova.Application.Interfaces;
+using Famenova.Shared;
 using Famenova.Shared.Dtos.Cart;
 using Microsoft.Extensions.Configuration;
 using System;

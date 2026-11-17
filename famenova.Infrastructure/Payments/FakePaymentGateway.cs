@@ -1,5 +1,4 @@
-﻿using Famenova.Application.Exceptions;
-using Famenova.Application.Interfaces;
+﻿using Famenova.Application.Interfaces;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;

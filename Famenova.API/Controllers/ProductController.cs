@@ -11,7 +11,7 @@ namespace Famenova.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = AppRoles.Admin)]
+   // [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = AppRoles.Admin)]
 
     public class ProductController:ControllerBase
     {
@@ -35,6 +35,7 @@ namespace Famenova.API.Controllers
             return Ok(ApiResponse<PagedResult<ProductResponseDto>>.Success(result)); 
         }
         [HttpGet("get")]
+        [AllowAnonymous]
         public async Task<ActionResult<ApiResponse<ProductResponseDto>>>GetByIdAsync(int id)
         {
             var result = await _productService.GetByIdAsync(id);

@@ -13,7 +13,7 @@ namespace Famenova.API.Controllers
     [ApiController]
     [Route("api/[controller]")]
 
-    [Authorize(AuthenticationSchemes =JwtBearerDefaults.AuthenticationScheme,Roles = "Admin")]
+  //  [Authorize(AuthenticationSchemes =JwtBearerDefaults.AuthenticationScheme,Roles = "Admin")]
     public class CategoryController:ControllerBase
     {
         private readonly ICategoryService _categoryService;
@@ -47,12 +47,14 @@ namespace Famenova.API.Controllers
         }
 
         [HttpGet("{id}")]
+        [AllowAnonymous]
         public async Task<ActionResult<ApiResponse<CategoryResponseDto>>> GetByIdAsync(int id)
         {
             var result = await _categoryService.GetByIdAsync(id);
             return Ok(ApiResponse<CategoryResponseDto>.Success(result));
         }
         [HttpGet]
+        [AllowAnonymous]
        public async Task<ActionResult<ApiResponse<PagedResult<CategoryResponseDto>>>> GetAll(string?search , string?sort,int pageIndex=1,int pageSize=10)
         {
             var result =await  _categoryService.GetAllAsync(search, sort, pageIndex, pageSize);

@@ -1,10 +1,10 @@
-﻿using Famenova.Application.Exceptions;
-using Famenova.Application.Interfaces;
+﻿using Famenova.Application.Interfaces;
 using famenova.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Famenova.Application.Otp;
+using Famenova.Shared;
 
 namespace Famenova.API.Controllers
 {

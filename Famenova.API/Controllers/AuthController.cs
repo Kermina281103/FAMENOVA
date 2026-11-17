@@ -1,5 +1,4 @@
-﻿using Famenova.Application.Exceptions;
-using Famenova.Application.Interfaces;
+﻿using Famenova.Application.Interfaces;
 using Famenova.Application.Responses;
 using Famenova.Shared.Dtos.Auth;
 using Microsoft.AspNetCore.Authorization;

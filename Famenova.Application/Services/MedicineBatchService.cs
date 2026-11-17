@@ -2,9 +2,9 @@
 using famenova.Domain.Entities;
 using famenova.Domain.Interfaces;
 using Famenova.Application.Common.Models;
-using Famenova.Application.Exceptions;
 using Famenova.Application.Interfaces;
 using Famenova.Application.Specifications;
+using Famenova.Shared;
 using Famenova.Shared.Dtos.MedicineBatch;
 using System;
 using System.Collections.Generic;

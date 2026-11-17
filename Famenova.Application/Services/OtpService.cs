@@ -1,7 +1,7 @@
 ﻿using famenova.Domain.Entities;
 using famenova.Domain.Interfaces;
-using Famenova.Application.Exceptions;
 using Famenova.Application.Interfaces;
+using Famenova.Shared;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;

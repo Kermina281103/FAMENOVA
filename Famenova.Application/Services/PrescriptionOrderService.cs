@@ -3,10 +3,10 @@ using famenova.Domain.Entities;
 using famenova.Domain.Enums;
 using famenova.Domain.Interfaces;
 using Famenova.Application.Common.Models;
-using Famenova.Application.Exceptions;
 using Famenova.Application.Interfaces;
 using Famenova.Application.Services.Files;
 using Famenova.Application.Specifications;
+using Famenova.Shared;
 using Famenova.Shared.Dtos.Order;
 using Famenova.Shared.Dtos.PrescriptionOrder;
 
