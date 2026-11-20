@@ -15,7 +15,9 @@ namespace Famenova.Application.Mappings
         public MedicineProfile()
         {
             CreateMap<CreateMedicineDto, Medicine>()
-                .ForMember(ds => ds.ImageUrl, src => src.Ignore());
+                .ForMember(ds => ds.ImageUrl, src => src.Ignore())
+                 .ForMember(dest => dest.Batches, opt => opt.Ignore())
+                 .ForMember(dest => dest.Stock, opt => opt.Ignore());
 
             CreateMap<Medicine, MedicineResponseDto>()
                 .ForMember(

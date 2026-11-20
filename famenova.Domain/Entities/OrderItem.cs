@@ -15,6 +15,8 @@ namespace famenova.Domain.Entities
         public int OrderId { get; set; }
         public decimal UnitPrice { get; set; }
         public int Quantity { get; set; }
+        public ICollection<OrderItemBatch> Allocations { get; set; }
+    = new HashSet<OrderItemBatch>();
 
     }
 }

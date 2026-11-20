@@ -9,6 +9,7 @@
         public string PrescriptionImageUrl { get; set; } = default!;
         public string? CustomerName { get; set; }
         public string? PhoneNumber { get; set; }
+        public string? CustomerNotes { get; set; }
         public DateTime? ClarificationRespondedAt { get; set; }
     }
 }

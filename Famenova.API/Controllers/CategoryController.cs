@@ -24,6 +24,7 @@ namespace Famenova.API.Controllers
         }
         
         [HttpPost]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
         public async Task<ActionResult<ApiResponse<CategoryResponseDto>>>  CreateAsync([FromForm] CreateCategoryDto dto)
         {
            
@@ -32,6 +33,7 @@ namespace Famenova.API.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
         public async Task<ActionResult<ApiResponse<CategoryResponseDto>>> UpdateAsync(int id ,[FromForm]UpdateCategoryDto dto)
         {
             
@@ -40,6 +42,7 @@ namespace Famenova.API.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
         public async Task<ActionResult<ApiResponse<string>>> DeleteAsync(int id)
         {
            await _categoryService.DeleteAsync(id);

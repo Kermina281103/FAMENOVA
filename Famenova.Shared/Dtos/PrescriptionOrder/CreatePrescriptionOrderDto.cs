@@ -15,7 +15,8 @@ namespace Famenova.Shared.Dtos.PrescriptionOrder
             public IFormFile PrescriptionImageUrl { get; set; } = default!;
             public AddressDto DeliveryAddress { get; set; } = default!;
             public string PhoneNumber { get; set; } = default!;
-       
+        public string? CustomerNotes { get; set; }
+
 
     }
 }

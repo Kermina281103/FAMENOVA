@@ -26,7 +26,7 @@ namespace Famenova.API.Controllers
         [HttpPost("create")]
         [Consumes("multipart/form-data")]
         [Authorize(AuthenticationSchemes =JwtBearerDefaults.AuthenticationScheme,Roles =AppRoles.Customer)]
-        public async Task<ActionResult<ApiResponse<PrescriptionOrderResponseDto>>> CreateAsyn(CreatePrescriptionOrderDto dto)
+        public async Task<ActionResult<ApiResponse<PrescriptionOrderResponseDto>>> CreateAsyn([FromForm]CreatePrescriptionOrderDto dto)
         {
             var uid = User.GetUserId();
 
@@ -46,11 +46,10 @@ namespace Famenova.API.Controllers
 
         [HttpGet("myWithId")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = AppRoles.Customer)]
-        public async Task<ActionResult<ApiResponse<PagedResult<PrescriptionOrderListItemDto>>>> GetMyWithIdAsync(PrescriptionOrderSpecParams dto)
+        public async Task<ActionResult<ApiResponse<PrescriptionOrderDetailsDto>>> GetMyWithIdAsync(int id)
         {
-            var uid = User.GetUserId();
-            var result = await _prescriptionOrderService.GetMyPrescriptionOrderAsync(dto, uid);
-            return Ok(ApiResponse<PagedResult<PrescriptionOrderListItemDto>>.Success(result, "Request Completed Succesffully"));
+            var result = await _prescriptionOrderService.GetMyPrescriptionOrderAsync(id, User.GetUserId());
+            return Ok(ApiResponse<PrescriptionOrderDetailsDto>.Success(result));
         }
 
         [HttpPost("approveCustomer")]
@@ -103,16 +102,12 @@ namespace Famenova.API.Controllers
         }
         [HttpPost("provideClarification")]
         [Consumes("multipart/form-data")]
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = AppRoles.Admin)]
-
-        public async Task<ActionResult<PrescriptionOrderResponseDto>> ProvideClarificationAsync(int id, [FromBody] ProvideClarificationDto dto)
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = AppRoles.Customer)]
+        public async Task<ActionResult<ApiResponse<PrescriptionOrderResponseDto>>> ProvideClarificationAsync(
+       int id, [FromForm] ProvideClarificationDto dto)
         {
-            var uid = User.GetUserId();
-            var result = await _prescriptionOrderService.ProvideClarificationAsync(id,uid,dto);
-            return Ok(ApiResponse<PrescriptionOrderResponseDto>.Success(result));
-
-
-
+            var result = await _prescriptionOrderService.ProvideClarificationAsync(id, User.GetUserId(), dto);
+            return Ok(ApiResponse<PrescriptionOrderResponseDto>.Success(result, "Clarification sent"));
         }
 
         [HttpPost("resume")]

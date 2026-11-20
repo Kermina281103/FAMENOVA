@@ -36,6 +36,7 @@ namespace Famenova.Application
                  configuration.GetSection("Jwt"));
             service.Configure<SmtpOptions>(configuration.GetSection(SmtpOptions.SectionName));
             service.AddScoped<IAuthService, AuthService>();
+           
             service.AddOptions<EmailSettings>()
         .Bind(configuration.GetSection(EmailSettings.SectionName))
         .ValidateDataAnnotations()

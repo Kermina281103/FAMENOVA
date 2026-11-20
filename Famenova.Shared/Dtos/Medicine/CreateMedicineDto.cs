@@ -21,5 +21,15 @@ namespace Famenova.Shared.Dtos.Medicine
         public int CategoryId { get; set; }
         public int? ProductGroupId { get; set; }   // 🆕
         public string? VariantLabel { get; set; }
+        public InitialBatchDto? InitialBatch { get; set; }
+    }
+
+    public class InitialBatchDto
+    {
+        public string BatchNumber { get; set; } = default!;
+
+        public DateTime ExpiryDate { get; set; }
+
+        public int Quantity { get; set; }
     }
 }

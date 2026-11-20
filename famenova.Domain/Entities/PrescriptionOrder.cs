@@ -16,6 +16,7 @@ namespace famenova.Domain.Entities
         public string PrescriptionImageUrl { get; set; } = default!;
         public Address DeliveryAddress { get; set; } = default!;
         public string PhoneNumber { get; set; } = default!;
+        public string? CustomerNotes { get; set; }
 
         public PrescriptionStatus Status { get; set; } = PrescriptionStatus.PendingReview;
 

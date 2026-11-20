@@ -313,7 +313,7 @@ namespace famenova.Infrastructure.Migrations
                             SecurityStamp = "B379A222-38B6-4A59-A92B-3C986EE27F47",
                             Status = 0,
                             TwoFactorEnabled = false,
-                            UserName = "Kermina Maged"
+                            UserName = "KerminaMaged"
                         });
                 });
 
@@ -412,8 +412,8 @@ namespace famenova.Infrastructure.Migrations
 
                     b.Property<string>("BatchNumber")
                         .IsRequired()
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<DateTime>("ExpiryDate")
                         .HasColumnType("datetime2");
@@ -426,7 +426,8 @@ namespace famenova.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("MedicineId");
+                    b.HasIndex("MedicineId", "BatchNumber")
+                        .IsUnique();
 
                     b.ToTable("Batches");
                 });
@@ -533,6 +534,33 @@ namespace famenova.Infrastructure.Migrations
                     b.HasIndex("ProductId");
 
                     b.ToTable("OrderItem");
+                });
+
+            modelBuilder.Entity("famenova.Domain.Entities.OrderItemBatch", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("MedicineBatchId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("OrderItemId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MedicineBatchId");
+
+                    b.HasIndex("OrderItemId", "MedicineBatchId")
+                        .IsUnique();
+
+                    b.ToTable("OrderItemBatches");
                 });
 
             modelBuilder.Entity("famenova.Domain.Entities.OtpCode", b =>
@@ -666,6 +694,10 @@ namespace famenova.Infrastructure.Migrations
 
                     b.Property<int>("CustomerId")
                         .HasColumnType("int");
+
+                    b.Property<string>("CustomerNotes")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
 
                     b.Property<string>("LastModifiedBy")
                         .HasColumnType("nvarchar(max)");
@@ -1005,6 +1037,25 @@ namespace famenova.Infrastructure.Migrations
                     b.Navigation("Product");
                 });
 
+            modelBuilder.Entity("famenova.Domain.Entities.OrderItemBatch", b =>
+                {
+                    b.HasOne("famenova.Domain.Entities.MedicineBatch", "MedicineBatch")
+                        .WithMany()
+                        .HasForeignKey("MedicineBatchId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("famenova.Domain.Entities.OrderItem", "OrderItem")
+                        .WithMany("Allocations")
+                        .HasForeignKey("OrderItemId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("MedicineBatch");
+
+                    b.Navigation("OrderItem");
+                });
+
             modelBuilder.Entity("famenova.Domain.Entities.OtpCode", b =>
                 {
                     b.HasOne("famenova.Domain.Entities.ApplicationUser", null)
@@ -1127,6 +1178,11 @@ namespace famenova.Infrastructure.Migrations
             modelBuilder.Entity("famenova.Domain.Entities.Order", b =>
                 {
                     b.Navigation("OrderItems");
+                });
+
+            modelBuilder.Entity("famenova.Domain.Entities.OrderItem", b =>
+                {
+                    b.Navigation("Allocations");
                 });
 
             modelBuilder.Entity("famenova.Domain.Entities.PrescriptionOrder", b =>

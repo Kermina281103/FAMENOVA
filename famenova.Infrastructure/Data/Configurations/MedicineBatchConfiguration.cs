@@ -20,8 +20,14 @@ namespace famenova.Infrastructure.Data.Configurations
                 .HasForeignKey(mb => mb.MedicineId)
                 .OnDelete(DeleteBehavior.Cascade);
             builder.Property(x => x.BatchNumber)
-                   .IsRequired()
-                   .HasMaxLength(1000);
+               .HasMaxLength(50);
+
+            builder.HasIndex(x => new
+            {
+                x.MedicineId,
+                x.BatchNumber
+            })
+          .IsUnique();
 
         }
     }

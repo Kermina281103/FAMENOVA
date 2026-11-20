@@ -18,6 +18,7 @@ namespace Famenova.Shared.Dtos.Product
         public bool IsDeleted { get; set; } = false;
 
         public string CategoryName { get; set; } = default!;
+        public bool IsMedicine { get; set; }
         public string? VariantLabel { get; set; }
         public List<ProductVariantDto> Variants { get; set; } = new();
     }

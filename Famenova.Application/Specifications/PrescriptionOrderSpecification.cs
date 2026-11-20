@@ -112,6 +112,7 @@ namespace Famenova.Application.Specifications
             Criteria = x => x.Id == id && x.CustomerId == customerId;
 
             AddInclude(q => q.Include(x => x.Items).ThenInclude(i => i.Product));
+            AddInclude(q => q.Include(x => x.Customer));
         }
     }
 }

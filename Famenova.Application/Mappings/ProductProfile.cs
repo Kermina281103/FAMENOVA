@@ -22,8 +22,9 @@ namespace Famenova.Application.Mappings
     .ForMember(d => d.VariantLabel, o => o.MapFrom(s => s.VariantLabel ?? s.Name));
             CreateMap<Product, ProductResponseDto>()
             .ForMember(x => x.CategoryName, sr => sr.MapFrom(x => x.Category.Name))
-            .ForMember(x => x.ImageUrl, src => src.MapFrom<ProductResolver<ProductResponseDto>>());
-            
+            .ForMember(x => x.ImageUrl, src => src.MapFrom<ProductResolver<ProductResponseDto>>())
+             .ForMember(d => d.IsMedicine, o => o.MapFrom(s => s is Medicine)); 
+
         }
     }
 }

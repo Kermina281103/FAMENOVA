@@ -9,7 +9,7 @@ namespace Famenova.Application.Services.Files
 {
     public interface IFileService
     {
-        Task<string> SaveImageAsync(IFormFile image, string folderName);
+        Task<string> SaveImageAsync(IFormFile image, string folderName,bool allowPdf=false);
         void DeleteImage(string? ImagePath);
 
     }

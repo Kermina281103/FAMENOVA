@@ -24,6 +24,7 @@ namespace famenova.Infrastructure.Data.Configurations
             builder.Property(p => p.RejectReason).HasMaxLength(1000);
             builder.Property(p => p.ClarificationRequest).HasMaxLength(1000);
             builder.Property(p => p.ClarificationResponse).HasMaxLength(1000);
+            builder.Property(p => p.CustomerNotes).HasMaxLength(1000);
 
             // Don't remove prescription if customer deleted
             builder.HasOne(p => p.Customer)

@@ -19,6 +19,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 using StackExchange.Redis;
+using famenova.Infrastructure.Queries;
 
 namespace famenova.Infrastructure
 {
@@ -137,7 +138,7 @@ namespace famenova.Infrastructure
                 JwtTokenGenerator>();
 
 
-
+            services.AddScoped<IDashboardQueries, DashboardQueries>();
             services.AddScoped<IAuthService, AuthService>();
 
 

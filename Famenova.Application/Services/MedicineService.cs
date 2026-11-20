@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using famenova.Domain.Entities;
 using famenova.Domain.Interfaces;
+using Famenova.Application.Common.Batches;
 using Famenova.Application.Common.Models;
 using Famenova.Application.Interfaces;
 using Famenova.Application.Services.Files;
@@ -29,11 +30,30 @@ namespace Famenova.Application.Services
             if (findcat is null)
                 throw new NotFoundException($"Category With Id {dto.CategoryId} is not Found");
 
-            // 🆕
+            
             if (dto.ProductGroupId.HasValue)
                 await ValidateGroupAsync(dto.ProductGroupId.Value, dto.VariantLabel ?? dto.Concentration);
-
             var medicine = _mapper.Map<Medicine>(dto);
+
+            if (dto.InitialBatch is { } b)
+            {
+                var number = BatchRules.ValidateNumber(b.BatchNumber);
+
+                var expiry = BatchRules.ValidateNewExpiry(b.ExpiryDate);
+
+                BatchRules.ValidateQuantity(b.Quantity, isNew: true);
+
+                medicine.Batches.Add(new MedicineBatch
+                {
+                    BatchNumber = number,
+                    ExpiryDate = expiry,
+                    Quantity = b.Quantity
+                });
+
+                medicine.IncreaseStock(b.Quantity);
+            }
+
+  
             if (dto.ImageUrl != null)
                 medicine.ImageUrl = await _fileService.SaveImageAsync(dto.ImageUrl, "Medicines");
 

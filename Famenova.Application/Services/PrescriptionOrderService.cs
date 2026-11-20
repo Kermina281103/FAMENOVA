@@ -9,6 +9,7 @@ using Famenova.Application.Specifications;
 using Famenova.Shared;
 using Famenova.Shared.Dtos.Order;
 using Famenova.Shared.Dtos.PrescriptionOrder;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Famenova.Application.Services
 {
@@ -25,39 +26,42 @@ namespace Famenova.Application.Services
             _fileService = fileService;
         }
         //customer
-         public async Task<PrescriptionOrderResponseDto>  CreateAsync(CreatePrescriptionOrderDto dto, int customerId)
+
+
+
+
+        public async Task<PrescriptionOrderResponseDto> CreateAsync(CreatePrescriptionOrderDto dto, int customerId)
         {
-            var customer = await  _unitOfWork.GetGeneric<ApplicationUser>().GetByIdAsync(customerId);
-            if (customer is null)
-                throw new NotFoundException($"Customer with Id {customerId} is not found");
+            _ = await _unitOfWork.GetGeneric<ApplicationUser>().GetByIdAsync(customerId)
+                ?? throw new NotFoundException($"Customer with Id {customerId} is not found");
 
-           var order= _mapper.Map<PrescriptionOrder>(dto);
+            var notes = string.IsNullOrWhiteSpace(dto.CustomerNotes) ? null : dto.CustomerNotes.Trim();
+            if (notes?.Length > 1000)
+                throw new BadRequestException("Notes must be 1000 characters or fewer.");
+
+            var order = _mapper.Map<PrescriptionOrder>(dto);
             order.CustomerId = customerId;
+            order.CustomerNotes = notes;
 
-            if(order.PrescriptionImageUrl is null)
-                order.PrescriptionImageUrl = await _fileService.SaveImageAsync(dto.PrescriptionImageUrl, "Prescriptions");
-            else
+            var image = await _fileService.SaveImageAsync(dto.PrescriptionImageUrl, "Prescriptions", allowPdf: true);
+            order.PrescriptionImageUrl = image;
+
+            try
             {
-                if(order.ClarificationImageUrl is null)
-                    order.ClarificationImageUrl = await _fileService.SaveImageAsync(dto.PrescriptionImageUrl, "Prescriptions");
-                else
-                {
-                    _fileService.DeleteImage(order.ClarificationImageUrl);
-                    order.ClarificationImageUrl = await _fileService.SaveImageAsync(dto.PrescriptionImageUrl, "Prescriptions");
-                }
-            }
-               
-
                 await _unitOfWork.GetGeneric<PrescriptionOrder>().AddAsync(order);
-            await  _unitOfWork.SaveChangesAsync();
+                await _unitOfWork.SaveChangesAsync();
+            }
+            catch
+            {
+                _fileService.DeleteImage(image);
+                throw;
+            }
 
-            return _mapper.Map<PrescriptionOrder, PrescriptionOrderResponseDto>(order);
-
-
-
+            return _mapper.Map<PrescriptionOrderResponseDto>(order);
         }
 
-       public  async Task<PrescriptionOrderResponseDto> RejectByCustomerAsync(int id, int customerId) {
+
+        public async Task<PrescriptionOrderResponseDto> RejectByCustomerAsync(int id, int customerId) {
             var spec = new MyPrescriptionDetailsSpecification(id,customerId);
             var prescriptionOrder = await _unitOfWork.GetGeneric<PrescriptionOrder>().GetByIdAsync(spec);
             if (prescriptionOrder is null)
@@ -175,16 +179,30 @@ namespace Famenova.Application.Services
 
         public async Task<PrescriptionOrderResponseDto> ProvideClarificationAsync(int id, int customerId, ProvideClarificationDto dto)
         {
-            var spec = new MyPrescriptionDetailsSpecification(id, customerId);
-
-            var prescriptionOrder = await _unitOfWork.GetGeneric<PrescriptionOrder>().GetByIdAsync(spec)
+            var prescription = await _unitOfWork.GetGeneric<PrescriptionOrder>()
+                .GetByIdAsync(new MyPrescriptionDetailsSpecification(id, customerId))
                 ?? throw new NotFoundException($"Prescription With Id {id} is not found");
-            var img = await _fileService.SaveImageAsync(dto.ImageUrl, "Prescriptions");
-            prescriptionOrder.ProiveClarfication(dto.Response, img);
-            await _unitOfWork.SaveChangesAsync();
-            return _mapper.Map<PrescriptionOrderResponseDto>(prescriptionOrder);
-        }
 
+            if (string.IsNullOrWhiteSpace(dto.Response) && dto.ImageUrl is null)
+                throw new BadRequestException("Write a reply or attach a photo.");
+
+            string? img = null;
+            try
+            {
+                if (dto.ImageUrl is not null)
+                    img = await _fileService.SaveImageAsync(dto.ImageUrl, "Prescriptions", allowPdf: true);
+
+                prescription.ProiveClarfication(dto.Response?.Trim(), img);   // throws if the status is wrong
+                await _unitOfWork.SaveChangesAsync();
+            }
+            catch
+            {
+                if (img is not null) _fileService.DeleteImage(img);            // no orphan file
+                throw;
+            }
+
+            return _mapper.Map<PrescriptionOrderResponseDto>(prescription);
+        }
         public async Task<PrescriptionOrderResponseDto> RequestClarificationAsync(int id, string message)
         {
             var result = await GetForPharmacyAsync(id);

@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using famenova.Domain.Entities;
 using famenova.Domain.Interfaces;
+using Famenova.Application.Common.Batches;
 using Famenova.Application.Common.Models;
 using Famenova.Application.Interfaces;
 using Famenova.Application.Specifications;
@@ -17,35 +18,55 @@ namespace Famenova.Application.Services
 {
     public class MedicineBatchService(IUnitOfWork _unitOfWork,IMapper _mapper) : IMedicineBatchService
     {
-        public async Task<MedicineBatchResponseDto> CreateAsync(CreateMedicineBatchDto dto)
+        public async Task<MedicineBatchResponseDto> CreateAsync(
+      CreateMedicineBatchDto dto)
         {
-            var exists = await _unitOfWork.GetGeneric<MedicineBatch>()
-               .AnyAsync(x => x.MedicineId == dto.MedicineId &&
-                   x.BatchNumber == dto.BatchNumber);
-            if (exists == true)
-                throw new ConflictException($"There is medicine With Id {dto.MedicineId} contain this  BatchNumber {dto.BatchNumber}");
+            dto.BatchNumber = BatchRules.ValidateNumber(dto.BatchNumber);
 
-            var medicine = await _unitOfWork.GetGeneric<Medicine>().GetByIdAsync(dto.MedicineId);
+            dto.ExpiryDate = BatchRules.ValidateNewExpiry(dto.ExpiryDate);
+
+            BatchRules.ValidateQuantity(dto.Quantity, isNew: true);
+
+            var medicine = await _unitOfWork
+                .GetGeneric<Medicine>()
+                .GetByIdAsync(dto.MedicineId);
+
             if (medicine is null)
-                throw new NotFoundException($"Medicine With Id {dto.MedicineId} is not found ");
+                throw new NotFoundException(
+                    $"Medicine With Id {dto.MedicineId} is not found");
+
+            var exists = await _unitOfWork
+                .GetGeneric<MedicineBatch>()
+                .AnyAsync(x =>
+                    x.MedicineId == dto.MedicineId &&
+                    x.BatchNumber == dto.BatchNumber);
+
+            if (exists)
+                throw new ConflictException(
+                    $"Batch Number {dto.BatchNumber} already exists for this medicine");
 
             var result = _mapper.Map<MedicineBatch>(dto);
 
-             medicine.IncreaseStock(dto.Quantity);
+            //  Increase medicine stock
+            medicine.IncreaseStock(dto.Quantity);
 
-             await _unitOfWork.GetGeneric<MedicineBatch>().AddAsync(result);
-          //  result.Medicine.Stock += result.Quantity;
+          // Add batch to database
+            await _unitOfWork
+                .GetGeneric<MedicineBatch>()
+                .AddAsync(result);
+
             await _unitOfWork.SaveChangesAsync();
 
-            var medicineBatchResponse = _mapper.Map<MedicineBatchResponseDto>(result);
-            return medicineBatchResponse;
+            return _mapper.Map<MedicineBatchResponseDto>(result);
         }
 
         public async Task DeleteAsync(int id)
         {
+            if (await _unitOfWork.GetGeneric<OrderItemBatch>().AnyAsync(a => a.MedicineBatchId == id))
+                throw new BadRequestException("This batch has sales history. Set its quantity to 0 instead.");
             var spec = new MedicineBatchSpecification(id);
             var medBatch =  await _unitOfWork.GetGeneric<MedicineBatch>().GetByIdAsync(spec);
-
+            
             if (medBatch is null)
                 throw new NotFoundException($"Medicine Batch With Id {id} is not found");
             medBatch.Medicine.DecreaseStock(medBatch.Quantity);
@@ -95,21 +116,30 @@ namespace Famenova.Application.Services
                     throw new ConflictException(
                         $"Batch Number {dto.BatchNumber} already exists for this medicine");
 
-                medBatch.BatchNumber = dto.BatchNumber;
+                medBatch.BatchNumber =
+                         BatchRules.ValidateNumber(dto.BatchNumber);
             }
+
             if (dto.ExpiryDate.HasValue)
-                medBatch.ExpiryDate = dto.ExpiryDate.Value;
+                medBatch.ExpiryDate = dto.ExpiryDate.Value.Date;
+
             if (dto.Quantity.HasValue)
             {
                 var oldQuantity = medBatch.Quantity;
                 var newQuantity = dto.Quantity.Value;
 
                 var difference = newQuantity - oldQuantity;
+                BatchRules.ValidateQuantity(
+                   dto.Quantity.Value,
+                    isNew: false);
 
                 medBatch.Quantity = newQuantity;
 
                 medBatch.Medicine.AdjustStock(difference);
 
+  
+
+              
 
             }
 
