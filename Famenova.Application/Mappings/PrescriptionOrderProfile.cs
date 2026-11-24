@@ -41,6 +41,11 @@ namespace Famenova.Application.Mappings
           //      .ForMember(dest => dest.PaymentStatus, sr => sr.MapFrom(x => x.Order!.PaymentStatus));
            
 
+            CreateMap<PrescriptionMessage, PrescriptionMessageDto>()
+                .ForMember(d => d.Sender, o => o.MapFrom(s => s.Sender.ToString()))
+                .ForMember(d => d.Kind, o => o.MapFrom(s => s.Kind.ToString()))
+                .ForMember(d => d.AttachmentUrl, o => o.MapFrom<MessageAttachmentResolver>());
+
             CreateMap<PrescriptionOrder, PrescriptionOrderDetailsDto>()
                .ForMember(dest => dest.CustomerName, opt => opt.MapFrom(src => src.Customer.UserName))
                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status.ToString()))

@@ -15,6 +15,8 @@ namespace Famenova.Shared.Dtos.Product
         public int? Stock { get; set; }
         public string? Description { get; set; }
         public int? CategoryId { get; set; }
+        /// <summary>null = unchanged</summary>
+        public decimal? PurchaseCost { get; set; }
         public IFormFile? ImageUrl { get; set; }
         public int? ProductGroupId { get; set; }
         public string? VariantLabel { get; set; }

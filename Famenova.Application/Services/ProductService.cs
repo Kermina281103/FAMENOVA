@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using famenova.Domain.Entities;
 using famenova.Domain.Interfaces;
+using Famenova.Application.Common.Costs;
 using Famenova.Application.Common.Models;
 using Famenova.Application.Interfaces;
 using Famenova.Application.Services.Files;
@@ -34,6 +35,7 @@ namespace Famenova.Application.Services
                 await ValidateGroupAsync(dto.ProductGroupId.Value, dto.VariantLabel);
 
             var product = _mapper.Map<Product>(dto);
+            product.PurchaseCost = CostRules.Validate(dto.PurchaseCost);
             if (dto.ImageUrl != null)
                 product.ImageUrl = await _fileService.SaveImageAsync(dto.ImageUrl, "Products");
             product.ProductGroupId = dto.ProductGroupId;
@@ -96,6 +98,12 @@ namespace Famenova.Application.Services
                 product.Description = dto.Description;
             if (dto.Price.HasValue)
                 product.Price = dto.Price.Value;
+            if (dto.PurchaseCost.HasValue)
+            {
+                if (product is Medicine)
+                    throw new BadRequestException("A medicine's cost is recorded on each of its batches.");
+                product.PurchaseCost = CostRules.Validate(dto.PurchaseCost);
+            }
 
             if (dto.CategoryId.HasValue)
             {

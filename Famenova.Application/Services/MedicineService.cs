@@ -2,6 +2,7 @@
 using famenova.Domain.Entities;
 using famenova.Domain.Interfaces;
 using Famenova.Application.Common.Batches;
+using Famenova.Application.Common.Costs;
 using Famenova.Application.Common.Models;
 using Famenova.Application.Interfaces;
 using Famenova.Application.Services.Files;
@@ -47,7 +48,8 @@ namespace Famenova.Application.Services
                 {
                     BatchNumber = number,
                     ExpiryDate = expiry,
-                    Quantity = b.Quantity
+                    Quantity = b.Quantity,
+                    UnitCost = CostRules.Validate(b.UnitCost)
                 });
 
                 medicine.IncreaseStock(b.Quantity);

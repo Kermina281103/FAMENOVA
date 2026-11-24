@@ -23,7 +23,7 @@ namespace Famenova.Application.Interfaces
         Task<PrescriptionOrderDetailsDto> GetMyPrescriptionOrderAsync(int id, int customerId);
 
         //Admin
-        Task<PrescriptionOrderResponseDto> RequestClarificationAsync(int id, string message);
+        Task<PrescriptionOrderResponseDto> RequestClarificationAsync(int id, string message, int? pharmacistId = null);
         Task<PrescriptionOrderResponseDto> ProvideClarificationAsync(int id, int customerId, ProvideClarificationDto dto);
         Task<PrescriptionOrderResponseDto> ResumeReviewAsync(int id);
         Task<PrescriptionOrderResponseDto> RejectByPharmacyAsync(int id, RejectPrescriptionOrderDto rejectReason);
@@ -32,5 +32,11 @@ namespace Famenova.Application.Interfaces
         Task<PrescriptionOrderResponseDto> SendForCustomerApprovaleAsync(int Id);
         Task<PagedResult<PrescriptionOrderListItemDto>> GetAllAsync(PrescriptionOrderSpecParams specParams);
         Task<PrescriptionOrderDetailsDto> GetByIdAsync(int id);
+
+        // Conversation (both sides). asPharmacist = the caller is staff (Admin role).
+        Task<IReadOnlyList<PrescriptionMessageDto>> GetMessagesAsync(int id, int userId, bool asPharmacist);
+        Task<PrescriptionMessageDto> SendMessageAsync(int id, int userId, bool asPharmacist, SendPrescriptionMessageDto dto);
+        Task<int> MarkMessagesReadAsync(int id, int userId, bool asPharmacist);
+        Task<UnreadMessagesSummaryDto> GetUnreadAsync(int userId, bool asPharmacist);
     }
 }

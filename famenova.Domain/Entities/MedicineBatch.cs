@@ -13,6 +13,8 @@ namespace famenova.Domain.Entities
         public string BatchNumber { get; set; } = default!;
         public DateTime ExpiryDate { get; set; }
         public int Quantity { get; set; }
+        /// <summary>Purchase cost of ONE unit of this batch (null = not recorded). Used for profit.</summary>
+        public decimal? UnitCost { get; set; }
         public int MedicineId { get; set; }
         public Medicine Medicine { get; set; } = default!;
         public void Consume(int quantity)

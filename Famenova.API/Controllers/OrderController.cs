@@ -78,6 +78,34 @@ namespace Famenova.API.Controllers
         }
 
 
+        // ================= admin: order status =================
+        // POST api/Order/ship?id=  |  deliver  |  refuseDelivery  |  cancelByAdmin  |  markRefunded
+
+        [HttpPost("ship")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = AppRoles.Admin)]
+        public async Task<ActionResult<ApiResponse<OrderDetailsDto>>> Ship(int id)
+            => Ok(ApiResponse<OrderDetailsDto>.Success(await _orderService.ShipAsync(id), "Order shipped"));
+
+        [HttpPost("deliver")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = AppRoles.Admin)]
+        public async Task<ActionResult<ApiResponse<OrderDetailsDto>>> Deliver(int id)
+            => Ok(ApiResponse<OrderDetailsDto>.Success(await _orderService.DeliverAsync(id), "Order delivered"));
+
+        [HttpPost("refuseDelivery")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = AppRoles.Admin)]
+        public async Task<ActionResult<ApiResponse<OrderDetailsDto>>> RefuseDelivery(int id)
+            => Ok(ApiResponse<OrderDetailsDto>.Success(await _orderService.RefuseDeliveryAsync(id), "Delivery refused"));
+
+        [HttpPost("cancelByAdmin")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = AppRoles.Admin)]
+        public async Task<ActionResult<ApiResponse<OrderDetailsDto>>> CancelByAdmin(int id)
+            => Ok(ApiResponse<OrderDetailsDto>.Success(await _orderService.CancelByAdminAsync(id), "Order cancelled"));
+
+        [HttpPost("markRefunded")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = AppRoles.Admin)]
+        public async Task<ActionResult<ApiResponse<OrderDetailsDto>>> MarkRefunded(int id)
+            => Ok(ApiResponse<OrderDetailsDto>.Success(await _orderService.MarkAsRefundedAsync(id), "Order marked as refunded"));
+
         [HttpGet("getWithId")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = AppRoles.Admin)]
         public async Task<ActionResult<ApiResponse<OrderDetailsDto>>> GetOrderWithId(int id)

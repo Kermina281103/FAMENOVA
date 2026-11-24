@@ -14,5 +14,6 @@ namespace Famenova.Application.Interfaces
         Task<Dictionary<string, int>> OrderStatusAsync(DateOnly from, DateOnly to);
         Task<InventoryAnalyticsDto> InventoryAsync(int lowStock, int expiringDays, int take);
         Task<TopProductsDto> TopProductsAsync(DateOnly from, DateOnly to, int take);
+        Task<ProfitDto> ProfitAsync(DateOnly from, DateOnly to);
     }
 }

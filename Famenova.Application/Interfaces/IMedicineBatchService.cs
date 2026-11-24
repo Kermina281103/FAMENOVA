@@ -16,5 +16,8 @@ namespace Famenova.Application.Interfaces
         Task<MedicineBatchResponseDto> GetByIdAsync(int id);
 
         Task DeleteAsync(int id);
+
+        /// <summary>Sets Medicine.Stock to the sum of its batch quantities; returns the new stock</summary>
+        Task<int> SyncStockWithBatchesAsync(int medicineId);
     }
 }

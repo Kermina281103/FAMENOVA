@@ -193,6 +193,9 @@ namespace Famenova.Application.Services
                     img = await _fileService.SaveImageAsync(dto.ImageUrl, "Prescriptions", allowPdf: true);
 
                 prescription.ProiveClarfication(dto.Response?.Trim(), img);   // throws if the status is wrong
+                await _unitOfWork.GetGeneric<PrescriptionMessage>().AddAsync(PrescriptionMessage.Create(
+                    prescription.Id, MessageSender.Customer, customerId,
+                    PrescriptionMessageKind.ClarificationReply, dto.Response, img));
                 await _unitOfWork.SaveChangesAsync();
             }
             catch
@@ -203,13 +206,127 @@ namespace Famenova.Application.Services
 
             return _mapper.Map<PrescriptionOrderResponseDto>(prescription);
         }
-        public async Task<PrescriptionOrderResponseDto> RequestClarificationAsync(int id, string message)
+        public async Task<PrescriptionOrderResponseDto> RequestClarificationAsync(int id, string message, int? pharmacistId = null)
         {
             var result = await GetForPharmacyAsync(id);
             result.RequestClarification(message);
+            // the question stays in the conversation, even after a later question replaces it on the order
+            await _unitOfWork.GetGeneric<PrescriptionMessage>().AddAsync(PrescriptionMessage.Create(
+                result.Id, MessageSender.Pharmacist, pharmacistId,
+                PrescriptionMessageKind.ClarificationRequest, message, null));
             await _unitOfWork.SaveChangesAsync();
             return _mapper.Map<PrescriptionOrderResponseDto>(result);
 
+        }
+
+        // ================= Conversation =================
+
+        public async Task<IReadOnlyList<PrescriptionMessageDto>> GetMessagesAsync(int id, int userId, bool asPharmacist)
+        {
+            await GetForConversationAsync(id, userId, asPharmacist);
+            var messages = await _unitOfWork.GetGeneric<PrescriptionMessage>()
+                .ListAsync(new PrescriptionMessagesSpecification(id));
+            return _mapper.Map<List<PrescriptionMessageDto>>(messages);
+        }
+
+        /// <summary>
+        /// A message from either side. While the prescription waits for the customer's answer
+        /// (NeedsClarification), a customer message IS the answer: it goes through the same domain rule
+        /// as provideClarification, so the pharmacist sees "customer replied".
+        /// </summary>
+        public async Task<PrescriptionMessageDto> SendMessageAsync(int id, int userId, bool asPharmacist, SendPrescriptionMessageDto dto)
+        {
+            var prescription = await GetForConversationAsync(id, userId, asPharmacist);
+
+            if (prescription.IsClosed)
+                throw new BadRequestException("This prescription is closed: the conversation can't receive new messages.");
+            if (string.IsNullOrWhiteSpace(dto.Body) && dto.Attachment is null)
+                throw new BadRequestException("Write a message or attach a file.");
+            if (dto.Body?.Trim().Length > PrescriptionMessage.MaxBodyLength)
+                throw new BadRequestException($"A message can be at most {PrescriptionMessage.MaxBodyLength} characters.");
+
+            var isReply = !asPharmacist && prescription.Status == PrescriptionStatus.NeedsClarification;
+
+            string? file = null;
+            try
+            {
+                if (dto.Attachment is not null)
+                    file = await _fileService.SaveImageAsync(dto.Attachment, "PrescriptionMessages", allowPdf: true);
+
+                if (isReply)
+                    prescription.ProiveClarfication(dto.Body?.Trim(), file);
+
+                var message = PrescriptionMessage.Create(
+                    prescription.Id,
+                    asPharmacist ? MessageSender.Pharmacist : MessageSender.Customer,
+                    userId,
+                    isReply ? PrescriptionMessageKind.ClarificationReply : PrescriptionMessageKind.Message,
+                    dto.Body,
+                    file);
+
+                await _unitOfWork.GetGeneric<PrescriptionMessage>().AddAsync(message);
+                await _unitOfWork.SaveChangesAsync();
+                return _mapper.Map<PrescriptionMessageDto>(message);
+            }
+            catch
+            {
+                if (file is not null) _fileService.DeleteImage(file);   // no orphan file
+                throw;
+            }
+        }
+
+        /// <summary>Marks the OTHER side's messages of this prescription as read; returns how many</summary>
+        public async Task<int> MarkMessagesReadAsync(int id, int userId, bool asPharmacist)
+        {
+            await GetForConversationAsync(id, userId, asPharmacist);
+            var from = asPharmacist ? MessageSender.Customer : MessageSender.Pharmacist;
+
+            var unread = (await _unitOfWork.GetGeneric<PrescriptionMessage>()
+                .GetAllAsync(m => m.PrescriptionOrderId == id && m.Sender == from && m.ReadAtUtc == null))
+                .ToList();
+            if (unread.Count == 0) return 0;
+
+            foreach (var m in unread) m.MarkRead();
+            await _unitOfWork.SaveChangesAsync();
+            return unread.Count;
+        }
+
+        public async Task<UnreadMessagesSummaryDto> GetUnreadAsync(int userId, bool asPharmacist)
+        {
+            var repo = _unitOfWork.GetGeneric<PrescriptionMessage>();
+            var unread = (asPharmacist
+                    ? await repo.GetAllAsync(m => m.Sender == MessageSender.Customer && m.ReadAtUtc == null)
+                    : await repo.GetAllAsync(m => m.Sender == MessageSender.Pharmacist && m.ReadAtUtc == null
+                                                  && m.PrescriptionOrder.CustomerId == userId))
+                .ToList();
+
+            var items = unread
+                .GroupBy(m => m.PrescriptionOrderId)
+                .Select(g =>
+                {
+                    var last = g.OrderByDescending(m => m.SentAtUtc).First();
+                    return new UnreadMessagesItemDto
+                    {
+                        PrescriptionOrderId = g.Key,
+                        Count = g.Count(),
+                        LastSentAtUtc = last.SentAtUtc,
+                        IsClarification = last.Kind != PrescriptionMessageKind.Message
+                    };
+                })
+                .OrderByDescending(i => i.LastSentAtUtc)
+                .ToList();
+
+            return new UnreadMessagesSummaryDto { Total = unread.Count, Items = items };
+        }
+
+        /// <summary>Staff see every prescription; a customer only their own (404 otherwise)</summary>
+        private async Task<PrescriptionOrder> GetForConversationAsync(int id, int userId, bool asPharmacist)
+        {
+            if (asPharmacist) return await GetForPharmacyAsync(id);
+
+            return await _unitOfWork.GetGeneric<PrescriptionOrder>()
+                       .GetByIdAsync(new MyPrescriptionDetailsSpecification(id, userId))
+                   ?? throw new NotFoundException($"Prescription With Id {id} is not found");
         }
     }
 }

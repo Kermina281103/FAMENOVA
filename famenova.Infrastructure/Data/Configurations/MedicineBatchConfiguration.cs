@@ -21,6 +21,7 @@ namespace famenova.Infrastructure.Data.Configurations
                 .OnDelete(DeleteBehavior.Cascade);
             builder.Property(x => x.BatchNumber)
                .HasMaxLength(50);
+            builder.Property(x => x.UnitCost).HasPrecision(18, 2);
 
             builder.HasIndex(x => new
             {

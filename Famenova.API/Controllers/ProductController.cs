@@ -11,7 +11,7 @@ namespace Famenova.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-   // [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = AppRoles.Admin)]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = AppRoles.Admin)]
 
     public class ProductController:ControllerBase
     {
@@ -29,9 +29,12 @@ namespace Famenova.API.Controllers
             return Ok(ApiResponse<ProductResponseDto>.Success(result, "Product Created Successfully"));
         }
         [HttpGet("get-all")]
+        [AllowAnonymous]
         public async Task<ActionResult<ApiResponse<PagedResult<ProductResponseDto>>>> GetAllAsync(string?search , int? categoryId, string? sort , int pageIndex, int pageSize)
         {
             var result = await _productService.GetAllAsync(search, categoryId, sort, pageIndex, pageSize);
+            if (!User.IsInRole(AppRoles.Admin))
+                foreach (var p in result.Items) p.PurchaseCost = null;   // never show costs in the store
             return Ok(ApiResponse<PagedResult<ProductResponseDto>>.Success(result)); 
         }
         [HttpGet("get")]
@@ -39,6 +42,8 @@ namespace Famenova.API.Controllers
         public async Task<ActionResult<ApiResponse<ProductResponseDto>>>GetByIdAsync(int id)
         {
             var result = await _productService.GetByIdAsync(id);
+            if (!User.IsInRole(AppRoles.Admin))
+                result.PurchaseCost = null;                            // never show costs in the store
             return Ok(ApiResponse<ProductResponseDto>.Success(result));
         }
 

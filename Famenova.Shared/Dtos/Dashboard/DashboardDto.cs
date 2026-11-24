@@ -92,6 +92,35 @@ namespace Famenova.Shared.Dtos.Dashboard
         public decimal Revenue { get; set; }
     }
 
+    /// <summary>
+    /// D5 — gross profit of confirmed orders in a period, from the cost of goods fixed at confirmation.
+    /// Revenue = sum of item lines (delivery fees excluded). Lines without a known cost are NOT
+    /// counted in the profit; they are reported so the UI can say the figure is partial.
+    /// </summary>
+    public class ProfitDto
+    {
+        public string From { get; set; } = "";
+        public string To { get; set; } = "";
+        public decimal Revenue { get; set; }
+        /// <summary>Revenue of the lines whose cost is known (the base of the profit)</summary>
+        public decimal CostedRevenue { get; set; }
+        public decimal CostOfGoods { get; set; }
+        /// <summary>CostedRevenue - CostOfGoods</summary>
+        public decimal GrossProfit { get; set; }
+        /// <summary>GrossProfit / CostedRevenue x 100; null when nothing is costed</summary>
+        public decimal? MarginPercent { get; set; }
+        public decimal UncostedRevenue { get; set; }
+        public int UncostedLines { get; set; }
+        /// <summary>CostedRevenue / Revenue x 100 (100 = every sale has a known cost)</summary>
+        public decimal CoveragePercent { get; set; }
+        /// <summary>Products sold without a known cost in this period (top 10 by revenue)</summary>
+        public List<TopProductDto> MissingCostProducts { get; set; } = new();
+        /// <summary>Batches still in stock with no unit cost (future sales won't be costed)</summary>
+        public int BatchesWithoutCost { get; set; }
+        /// <summary>Regular products (not medicines) with no purchase cost</summary>
+        public int ProductsWithoutCost { get; set; }
+    }
+
     public class TopProductsDto
     {
         public List<TopProductDto> Products { get; set; } = new();

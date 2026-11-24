@@ -15,6 +15,11 @@ namespace famenova.Domain.Entities
         public decimal Price { get; set; }
         public string? Description { get; set; }
         public int Stock { get; set; }
+        /// <summary>
+        /// Purchase cost of ONE unit for regular products (null = not recorded).
+        /// Medicines don't use it: their cost is per batch (MedicineBatch.UnitCost).
+        /// </summary>
+        public decimal? PurchaseCost { get; set; }
         public string? ImageUrl { get; set; }
         public bool IsDeleted { get; set; } = false;
         public Category Category { get; set; } = default!;

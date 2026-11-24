@@ -2,6 +2,7 @@
 using famenova.Domain.Enums;
 using famenova.Domain.Exceptions;
 using famenova.Domain.Interfaces;
+using Famenova.Application.Common.Costs;
 using Famenova.Application.Interfaces;
 using Famenova.Application.Specifications;
 using System;
@@ -46,7 +47,11 @@ namespace Famenova.Application.Services
 
             await ApplyAllocationsAsync(order, products);  // الدفعات الأول
             foreach (var item in order.OrderItems)
+            {
                 products[item.ProductId].DecreaseStock(item.Quantity);
+                // D5: cost of goods fixed now, from the batches actually consumed (null if unknown)
+                item.CostAmount = CostRules.LineCost(item, products[item.ProductId]);
+            }
 
             if (method == PaymentMethod.CashOnDelivery)
                 order.ConfirmCashOnDelivery();
@@ -93,7 +98,12 @@ namespace Famenova.Application.Services
             foreach (var (item, batch, take) in await PlanAllocationsAsync(order, products))
             {
                 batch.Consume(take);
-                item.Allocations.Add(new OrderItemBatch { MedicineBatchId = batch.Id, Quantity = take });
+                item.Allocations.Add(new OrderItemBatch
+                {
+                    MedicineBatchId = batch.Id,
+                    Quantity = take,
+                    UnitCost = batch.UnitCost          // the cost of THIS batch at the time of the sale
+                });
             }
         }
 
@@ -112,6 +122,10 @@ namespace Famenova.Application.Services
                 a.MedicineBatch.Restore(a.Quantity);                       
                 _unitOfWork.GetGeneric<OrderItemBatch>().Remove(a);        
             }
+
+            // the goods are back in stock: this order no longer has a cost of goods
+            foreach (var item in order.OrderItems)
+                item.CostAmount = null;
         }
 
         public async Task<Dictionary<int,Product>> LoadProductsAsync(Order order)

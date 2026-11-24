@@ -424,6 +424,10 @@ namespace famenova.Infrastructure.Migrations
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
+                    b.Property<decimal?>("UnitCost")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
                     b.HasKey("Id");
 
                     b.HasIndex("MedicineId", "BatchNumber")
@@ -503,6 +507,10 @@ namespace famenova.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<decimal?>("CostAmount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<string>("CreatedBy")
                         .HasColumnType("nvarchar(max)");
 
@@ -552,6 +560,10 @@ namespace famenova.Infrastructure.Migrations
 
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
+
+                    b.Property<decimal?>("UnitCost")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
 
                     b.HasKey("Id");
 
@@ -661,6 +673,49 @@ namespace famenova.Infrastructure.Migrations
                     b.HasIndex("RequiredRefund");
 
                     b.ToTable("Payment");
+                });
+
+            modelBuilder.Entity("famenova.Domain.Entities.PrescriptionMessage", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("AttachmentUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("Body")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<int>("Kind")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PrescriptionOrderId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("ReadAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Sender")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("SenderUserId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("SentAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PrescriptionOrderId", "SentAtUtc");
+
+                    b.HasIndex("Sender", "ReadAtUtc");
+
+                    b.ToTable("PrescriptionMessages");
                 });
 
             modelBuilder.Entity("famenova.Domain.Entities.PrescriptionOrder", b =>
@@ -819,6 +874,10 @@ namespace famenova.Infrastructure.Migrations
 
                     b.Property<int?>("ProductGroupId")
                         .HasColumnType("int");
+
+                    b.Property<decimal?>("PurchaseCost")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("Stock")
                         .HasColumnType("int");
@@ -1121,6 +1180,17 @@ namespace famenova.Infrastructure.Migrations
                     b.Navigation("Order");
                 });
 
+            modelBuilder.Entity("famenova.Domain.Entities.PrescriptionMessage", b =>
+                {
+                    b.HasOne("famenova.Domain.Entities.PrescriptionOrder", "PrescriptionOrder")
+                        .WithMany("Messages")
+                        .HasForeignKey("PrescriptionOrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("PrescriptionOrder");
+                });
+
             modelBuilder.Entity("famenova.Domain.Entities.PrescriptionOrderItem", b =>
                 {
                     b.HasOne("famenova.Domain.Entities.PrescriptionOrder", "PrescriptionOrder")
@@ -1188,6 +1258,8 @@ namespace famenova.Infrastructure.Migrations
             modelBuilder.Entity("famenova.Domain.Entities.PrescriptionOrder", b =>
                 {
                     b.Navigation("Items");
+
+                    b.Navigation("Messages");
                 });
 
             modelBuilder.Entity("famenova.Domain.Entities.Medicine", b =>

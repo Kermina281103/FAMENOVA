@@ -15,6 +15,7 @@ namespace famenova.Infrastructure.Data.Configurations
         {
             
             builder.OwnsOne(p => p.DeliveryAddress);
+            builder.Ignore(p => p.IsClosed);
 
             builder.Property(p => p.TotalPrice).HasPrecision(18, 2);
 

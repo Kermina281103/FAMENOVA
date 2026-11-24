@@ -1,4 +1,5 @@
 ﻿using Famenova.Application.Interfaces;
+using famenova.Domain.Entities;
 using famenova.Domain.Enums;
 using famenova.Infrastructure.Data.Context;
 using Famenova.Shared.Dtos.Dashboard;
@@ -195,6 +196,66 @@ namespace famenova.Infrastructure.Queries
             };
         }
 
+
+        public async Task<ProfitDto> ProfitAsync(DateOnly from, DateOnly to)
+        {
+            DateTime a = Utc(from), b = Utc(to.AddDays(1));
+
+            var lines = await db.OrderItem.AsNoTracking()
+                .Where(i => Confirmed.Contains(i.Order.OrderStatus)
+                         && i.Order.OrderDate >= a && i.Order.OrderDate < b)
+                .Select(i => new
+                {
+                    i.ProductId,
+                    Name = i.Product!.Name,
+                    IsMedicine = i.Product is Medicine,
+                    i.Quantity,
+                    Revenue = i.UnitPrice * i.Quantity,
+                    i.CostAmount
+                })
+                .ToListAsync();
+
+            var costed = lines.Where(l => l.CostAmount != null).ToList();
+            var uncosted = lines.Where(l => l.CostAmount == null).ToList();
+
+            var revenue = lines.Sum(l => l.Revenue);
+            var costedRevenue = costed.Sum(l => l.Revenue);
+            var cost = costed.Sum(l => l.CostAmount!.Value);
+            var profit = costedRevenue - cost;
+
+            var today = DateTime.UtcNow.Date;
+
+            return new()
+            {
+                From = from.ToString("yyyy-MM-dd"),
+                To = to.ToString("yyyy-MM-dd"),
+                Revenue = revenue,
+                CostedRevenue = costedRevenue,
+                CostOfGoods = cost,
+                GrossProfit = profit,
+                MarginPercent = costedRevenue == 0 ? null : Math.Round(profit / costedRevenue * 100, 1),
+                UncostedRevenue = revenue - costedRevenue,
+                UncostedLines = uncosted.Count,
+                CoveragePercent = revenue == 0 ? 100 : Math.Round(costedRevenue / revenue * 100, 1),
+                MissingCostProducts = uncosted
+                    .GroupBy(l => new { l.ProductId, l.Name, l.IsMedicine })
+                    .Select(g => new TopProductDto
+                    {
+                        ProductId = g.Key.ProductId,
+                        Name = g.Key.Name,
+                        IsMedicine = g.Key.IsMedicine,
+                        UnitsSold = g.Sum(x => x.Quantity),
+                        Revenue = g.Sum(x => x.Revenue)
+                    })
+                    .OrderByDescending(x => x.Revenue)
+                    .Take(10)
+                    .ToList(),
+                BatchesWithoutCost = await db.Batches.AsNoTracking()
+                    .CountAsync(x => x.Quantity > 0 && x.UnitCost == null && x.ExpiryDate > today && !x.Medicine.IsDeleted),
+                ProductsWithoutCost = await db.Product.AsNoTracking()
+                    .CountAsync(p => !(p is Medicine) && !p.IsDeleted && p.PurchaseCost == null)
+            };
+        }
 
         public async Task<TopProductsDto> TopProductsAsync(DateOnly from, DateOnly to, int take)
         {

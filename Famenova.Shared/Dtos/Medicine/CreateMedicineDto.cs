@@ -31,5 +31,7 @@ namespace Famenova.Shared.Dtos.Medicine
         public DateTime ExpiryDate { get; set; }
 
         public int Quantity { get; set; }
+
+        public decimal? UnitCost { get; set; }
     }
 }

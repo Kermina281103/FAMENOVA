@@ -156,11 +156,13 @@ namespace Famenova.Application.Services
                 findCat.Name = dto.Name;
             if (!string.IsNullOrEmpty(dto.Description))
                 findCat.Description = dto.Description;
-           if(dto.ImageUrl != null)
-            {
-                _fileService.DeleteImage(findCat.ImageUrl);
-                await _fileService.SaveImageAsync(dto.ImageUrl, "Categories");
+            findCat.IsActive = dto.IsActive;
 
+            if (dto.ImageUrl != null)
+            {
+                var newImage = await _fileService.SaveImageAsync(dto.ImageUrl, "Categories");
+                _fileService.DeleteImage(findCat.ImageUrl);
+                findCat.ImageUrl = newImage;
             }
            
 

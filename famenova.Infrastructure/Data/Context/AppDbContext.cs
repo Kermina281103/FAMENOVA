@@ -35,6 +35,7 @@ namespace famenova.Infrastructure.Data.Context
         public DbSet<MedicineBatch> Batches { get; set; }
         public DbSet<PrescriptionOrder> PrescriptionOrder { get; set; }
         public DbSet<PrescriptionOrderItem> PrescriptionOrderItem { get; set; }
+        public DbSet<PrescriptionMessage> PrescriptionMessages { get; set; }
         public DbSet<LogEntry> LogEntries { get; set; }
         public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
         public DbSet<OtpCode> OtpCodes => Set<OtpCode>();

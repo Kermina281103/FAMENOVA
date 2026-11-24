@@ -97,9 +97,50 @@ namespace Famenova.API.Controllers
 
         public async Task<ActionResult<PrescriptionOrderResponseDto>> RequestClarification(int id, [FromBody] RequestClarificationDto dto)
         {
-            var result = await _prescriptionOrderService.RequestClarificationAsync(id,dto.Message);
+            var result = await _prescriptionOrderService.RequestClarificationAsync(id, dto.Message, User.GetUserId());
             return Ok(ApiResponse<PrescriptionOrderResponseDto>.Success(result));
         }
+        // ================= Conversation (customer <-> pharmacist) =================
+        // GET  messages?id=        the thread, oldest first
+        // POST messages?id=        multipart: Body and/or Attachment
+        // POST messages/read?id=   mark the other side's messages as read
+        // GET  messages/unread     unread counters for the caller (customer: own prescriptions; admin: all)
+
+        private bool AsPharmacist => User.IsInRole(AppRoles.Admin);
+
+        [HttpGet("messages")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = AppRoles.Admin + "," + AppRoles.Customer)]
+        public async Task<ActionResult<ApiResponse<IReadOnlyList<PrescriptionMessageDto>>>> GetMessages(int id)
+        {
+            var result = await _prescriptionOrderService.GetMessagesAsync(id, User.GetUserId(), AsPharmacist);
+            return Ok(ApiResponse<IReadOnlyList<PrescriptionMessageDto>>.Success(result));
+        }
+
+        [HttpPost("messages")]
+        [Consumes("multipart/form-data")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = AppRoles.Admin + "," + AppRoles.Customer)]
+        public async Task<ActionResult<ApiResponse<PrescriptionMessageDto>>> SendMessage(int id, [FromForm] SendPrescriptionMessageDto dto)
+        {
+            var result = await _prescriptionOrderService.SendMessageAsync(id, User.GetUserId(), AsPharmacist, dto);
+            return Ok(ApiResponse<PrescriptionMessageDto>.Success(result, "Message sent"));
+        }
+
+        [HttpPost("messages/read")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = AppRoles.Admin + "," + AppRoles.Customer)]
+        public async Task<ActionResult<ApiResponse<int>>> MarkMessagesRead(int id)
+        {
+            var result = await _prescriptionOrderService.MarkMessagesReadAsync(id, User.GetUserId(), AsPharmacist);
+            return Ok(ApiResponse<int>.Success(result));
+        }
+
+        [HttpGet("messages/unread")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = AppRoles.Admin + "," + AppRoles.Customer)]
+        public async Task<ActionResult<ApiResponse<UnreadMessagesSummaryDto>>> GetUnread()
+        {
+            var result = await _prescriptionOrderService.GetUnreadAsync(User.GetUserId(), AsPharmacist);
+            return Ok(ApiResponse<UnreadMessagesSummaryDto>.Success(result));
+        }
+
         [HttpPost("provideClarification")]
         [Consumes("multipart/form-data")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = AppRoles.Customer)]

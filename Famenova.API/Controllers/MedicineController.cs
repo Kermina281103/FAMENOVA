@@ -13,7 +13,7 @@ namespace Famenova.API.Controllers
 
     [ApiController]
     [Route("api/[controller]")]
-   // [Authorize(AuthenticationSchemes =JwtBearerDefaults.AuthenticationScheme,Roles =AppRoles.Admin)]
+    [Authorize(AuthenticationSchemes =JwtBearerDefaults.AuthenticationScheme,Roles =AppRoles.Admin)]
     public class MedicineController:ControllerBase
     {
         private readonly IMedicineService _medicineService;

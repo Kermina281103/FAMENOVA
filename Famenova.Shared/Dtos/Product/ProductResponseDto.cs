@@ -19,6 +19,8 @@ namespace Famenova.Shared.Dtos.Product
 
         public string CategoryName { get; set; } = default!;
         public bool IsMedicine { get; set; }
+        /// <summary>Admin only: the controller clears it for everyone else</summary>
+        public decimal? PurchaseCost { get; set; }
         public string? VariantLabel { get; set; }
         public List<ProductVariantDto> Variants { get; set; } = new();
     }

@@ -22,5 +22,12 @@ namespace Famenova.Application.Interfaces
         Task<OrderDetailsDto> GetByIdAsync(int id);
         Task<OrderDetailsDto> CancelMyOrderAsync(int id, int userId);
         Task<PayOrderResultDto> PayMyOrderAsync(int id, int userId,PaymentMethod dto);
+
+        // admin: move the order forward (rules live in Order.cs)
+        Task<OrderDetailsDto> ShipAsync(int id);
+        Task<OrderDetailsDto> DeliverAsync(int id);
+        Task<OrderDetailsDto> RefuseDeliveryAsync(int id);
+        Task<OrderDetailsDto> CancelByAdminAsync(int id);
+        Task<OrderDetailsDto> MarkAsRefundedAsync(int id);
     }
 }

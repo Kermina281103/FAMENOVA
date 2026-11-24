@@ -44,6 +44,14 @@ namespace Famenova.API.Controllers
             return Ok(ApiResponse<string>.Success("Deleted", "Medicine Deleted Successfully"));
         }
 
+        /// <summary>POST api/MedicineBatch/sync-stock?medicineId= : Medicine.Stock = sum of its batches</summary>
+        [HttpPost("sync-stock")]
+        public async Task<ActionResult<ApiResponse<int>>> SyncStock(int medicineId)
+        {
+            var result = await _medicineBatchService.SyncStockWithBatchesAsync(medicineId);
+            return Ok(ApiResponse<int>.Success(result, "Stock now equals the batch total"));
+        }
+
         [HttpGet("{id}")]
         public async Task<ActionResult<ApiResponse<MedicineBatchResponseDto>>> GetByIdAsync(int id)
         {

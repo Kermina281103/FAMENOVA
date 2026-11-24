@@ -36,6 +36,14 @@ namespace famenova.Domain.Entities
 
         public ICollection<PrescriptionOrderItem> Items { get; set; } = new HashSet<PrescriptionOrderItem>();
 
+        /// <summary>Conversation between the customer and the pharmacist about this prescription</summary>
+        public ICollection<PrescriptionMessage> Messages { get; set; } = new HashSet<PrescriptionMessage>();
+
+        public bool IsClosed =>
+            Status is PrescriptionStatus.RejectedByPharmacy
+                   or PrescriptionStatus.RejectedByCustomer
+                   or PrescriptionStatus.ApprovedByCustomer;
+
 
 
 

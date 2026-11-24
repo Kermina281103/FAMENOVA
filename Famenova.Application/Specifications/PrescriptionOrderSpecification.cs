@@ -15,7 +15,7 @@ namespace Famenova.Application.Specifications
             var trim = search?.Trim();
 
             return x =>
-                ( x.CustomerId == customerId) &&
+                (!customerId.HasValue || x.CustomerId == customerId.Value) &&
                 (!status.HasValue || x.Status == status.Value) &&
                 ((string.IsNullOrEmpty(trim) ||
               x.PhoneNumber.Contains(trim) || (x.Customer.UserName != null && x.Customer.UserName.Contains(trim)) 

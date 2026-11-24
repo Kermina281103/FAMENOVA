@@ -17,6 +17,8 @@ namespace Famenova.Shared.Dtos.Product
 
         public IFormFile? ImageUrl { get; set; }
         public int CategoryId { get; set; }
+        /// <summary>Purchase cost of one unit (optional, needed for profit)</summary>
+        public decimal? PurchaseCost { get; set; }
         public int? ProductGroupId { get; set; }
         public string? VariantLabel { get; set; }
     }

@@ -18,5 +18,8 @@ namespace famenova.Domain.Entities
         public MedicineBatch MedicineBatch { get; set; } = default!;
 
         public int Quantity { get; set; }
+
+        /// <summary>The batch's unit cost at the moment of the sale (null = not recorded)</summary>
+        public decimal? UnitCost { get; set; }
     }
 }

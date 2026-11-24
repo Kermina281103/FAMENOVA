@@ -2,6 +2,7 @@
 using famenova.Domain.Entities;
 using famenova.Domain.Interfaces;
 using Famenova.Application.Common.Batches;
+using Famenova.Application.Common.Costs;
 using Famenova.Application.Common.Models;
 using Famenova.Application.Interfaces;
 using Famenova.Application.Specifications;
@@ -26,6 +27,7 @@ namespace Famenova.Application.Services
             dto.ExpiryDate = BatchRules.ValidateNewExpiry(dto.ExpiryDate);
 
             BatchRules.ValidateQuantity(dto.Quantity, isNew: true);
+            dto.UnitCost = CostRules.Validate(dto.UnitCost);
 
             var medicine = await _unitOfWork
                 .GetGeneric<Medicine>()
@@ -58,6 +60,40 @@ namespace Famenova.Application.Services
             await _unitOfWork.SaveChangesAsync();
 
             return _mapper.Map<MedicineBatchResponseDto>(result);
+        }
+
+        /// <summary>
+        /// The purchase cost of a batch is a fact about the batch: when it is entered late or corrected,
+        /// the sales already made from that batch get the same cost, and each sold line is re-costed.
+        /// </summary>
+        private async Task RecostSalesAsync(int batchId, decimal unitCost)
+        {
+            var allocations = (await _unitOfWork.GetGeneric<OrderItemBatch>()
+                .GetAllAsync(new AllocationsOfBatchSpecification(batchId))).ToList();
+
+            foreach (var allocation in allocations)
+                allocation.UnitCost = unitCost;
+
+            foreach (var item in allocations.Select(a => a.OrderItem).Distinct())
+                item.CostAmount = CostRules.AllocatedCost(item);
+        }
+
+        /// <summary>
+        /// Repairs data from before sales consumed batches (or any manual edit): after the admin has
+        /// corrected the batch quantities, the medicine's stock becomes their exact sum.
+        /// </summary>
+        public async Task<int> SyncStockWithBatchesAsync(int medicineId)
+        {
+            var medicine = await _unitOfWork.GetGeneric<Medicine>().GetByIdAsync(medicineId)
+                ?? throw new NotFoundException($"Medicine With Id {medicineId} is not found");
+
+            var total = (await _unitOfWork.GetGeneric<MedicineBatch>()
+                    .GetAllAsync(b => b.MedicineId == medicineId))
+                .Sum(b => b.Quantity);
+
+            medicine.AdjustStock(total - medicine.Stock);
+            await _unitOfWork.SaveChangesAsync();
+            return medicine.Stock;
         }
 
         public async Task DeleteAsync(int id)
@@ -122,6 +158,16 @@ namespace Famenova.Application.Services
 
             if (dto.ExpiryDate.HasValue)
                 medBatch.ExpiryDate = dto.ExpiryDate.Value.Date;
+
+            if (dto.UnitCost.HasValue)
+            {
+                var cost = CostRules.Validate(dto.UnitCost);
+                if (medBatch.UnitCost != cost)
+                {
+                    medBatch.UnitCost = cost;
+                    await RecostSalesAsync(medBatch.Id, cost!.Value);
+                }
+            }
 
             if (dto.Quantity.HasValue)
             {

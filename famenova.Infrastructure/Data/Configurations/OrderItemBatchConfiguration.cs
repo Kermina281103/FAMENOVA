@@ -20,6 +20,7 @@ namespace famenova.Infrastructure.Data.Configurations
              .HasForeignKey(x => x.MedicineBatchId).OnDelete(DeleteBehavior.Restrict);
 
             b.HasIndex(x => new { x.OrderItemId, x.MedicineBatchId }).IsUnique();
+            b.Property(x => x.UnitCost).HasPrecision(18, 2);
         }
     }
 }

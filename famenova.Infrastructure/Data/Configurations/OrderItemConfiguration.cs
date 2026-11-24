@@ -28,6 +28,7 @@ namespace famenova.Infrastructure.Data.Configurations
 
             builder.Property(p => p.UnitPrice)
                 .HasColumnType("decimal(18,2)");
+            builder.Property(p => p.CostAmount).HasPrecision(18, 2);
 
         }
     }

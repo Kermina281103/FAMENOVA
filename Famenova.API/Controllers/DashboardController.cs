@@ -63,6 +63,15 @@ namespace Famenova.API.Controllers
             return Ok(ApiResponse<TopProductsDto>.Success(result));
         }
 
+        /// <summary>D5 — gross profit from the cost of the goods actually sold</summary>
+        [HttpGet("profit")]
+        public async Task<ActionResult<ApiResponse<ProfitDto>>> Profit(DateOnly from, DateOnly to)
+        {
+            CheckRange(from, to);
+            var result = await queries.ProfitAsync(from, to);
+            return Ok(ApiResponse<ProfitDto>.Success(result));
+        }
+
         private static void CheckRange(DateOnly from, DateOnly to)
         {
             if (from == default || to == default)

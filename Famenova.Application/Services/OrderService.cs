@@ -204,6 +204,49 @@ namespace Famenova.Application.Services
            return  _mapper.Map<OrderDetailsDto>(order);
         }
 
+        // ================= admin: order status =================
+
+        public Task<OrderDetailsDto> ShipAsync(int id) =>
+            ChangeStatusAsync(id, order => { order.Ship(); return Task.CompletedTask; });
+
+        // Cash on delivery becomes Paid here (Order.Deliver)
+        public Task<OrderDetailsDto> DeliverAsync(int id) =>
+            ChangeStatusAsync(id, order => { order.Deliver(); return Task.CompletedTask; });
+
+        // Cash on delivery refused at the door: the goods come back to stock
+        public Task<OrderDetailsDto> RefuseDeliveryAsync(int id) =>
+            ChangeStatusAsync(id, async order =>
+            {
+                var release = order.IsStockCommitted;
+                order.RefuseDelivery();
+                if (release)
+                    await _confirmationService.ReleaseStockAsync(order);
+            });
+
+        // Pending or Processing only (Order.Cancel). A card payment stays "Paid" until the
+        // refund is made in Paymob and recorded with MarkAsRefundedAsync.
+        public Task<OrderDetailsDto> CancelByAdminAsync(int id) =>
+            ChangeStatusAsync(id, async order =>
+            {
+                var release = order.IsStockCommitted;
+                order.Cancel();
+                if (release)
+                    await _confirmationService.ReleaseStockAsync(order);
+            });
+
+        public Task<OrderDetailsDto> MarkAsRefundedAsync(int id) =>
+            ChangeStatusAsync(id, order => { order.MarkAsRefunded(); return Task.CompletedTask; });
+
+        private async Task<OrderDetailsDto> ChangeStatusAsync(int id, Func<Order, Task> change)
+        {
+            var order = await _unitOfWork.GetGeneric<Order>().GetByIdAsync(new OrderSpecification(id))
+                ?? throw new NotFoundException($"there isn't order with Id {id}");
+
+            await change(order);               // DomainException -> 400 with the rule's message
+            await _unitOfWork.SaveChangesAsync();
+            return _mapper.Map<OrderDetailsDto>(order);
+        }
+
         private async Task AddItemsToOrderAsync(Order order,IEnumerable<LineOrder> lines)
         {
             if (lines is null || !lines.Any())
